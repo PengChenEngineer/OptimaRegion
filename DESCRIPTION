@@ -1,11 +1,20 @@
 Package: OptimaRegion
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
-Encoding: UTF-8
+Title: Confidence Regions for Optima
+Version: 1.0
+Author: Enrique del Castillo, John Hunt, and James Rapkin, Peng Chen, Adam Meyers
+Maintainer: Enrique del Castillo <exd13@psu.edu>
+Depends: R (>= 3.3.0)
+Imports:
+  boot,
+  DepthProc,
+  fields,
+  nloptr,
+  rsm,
+  Rdsdp,
+  spam,
+  tidyverse
+Description: Computes confidence regions on the location of response surface optima.
+License: GPL (>= 2)
 LazyData: true
+RoxygenNote: 5.0.1
