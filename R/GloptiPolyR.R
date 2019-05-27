@@ -8,6 +8,7 @@
 #' 2. an attribute of the objective or constraint function
 #' 
 #' @return the optimal solution and its corresponding objective value
+#' @export
 GloptiPolyR <- function(P){
   # Check polynomial order --------------------------------------------------
   dimensions <- dim(P[[1]]$c)
