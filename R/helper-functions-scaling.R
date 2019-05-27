@@ -15,7 +15,6 @@ encode_orthogonal <- function(Xi, lb, ub){
   # return
   t(res)
 }
-
 #' Decode using the orthogonal convention
 #' 
 #' @param X numeric matrix of shape (N, k); X specifies the points in
