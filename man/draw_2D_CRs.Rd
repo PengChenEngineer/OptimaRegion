@@ -22,21 +22,6 @@ the k variables}
 \value{
 a figure displaying the confidence region of the true optimum,
         projected onto each pairwise-variable planes
--------------------------------------------------------------------------
-Arguments:
-boot_optima -- numeric matrix of shape ((1 - alpha)B, k); it contains the
-              (1 - alpha)B bootstrap optima
-boost_optimum -- numeric vector of shape (1, k); the bootsted optimum; 
-                computed by taking the column average of boot_optima
-lb -- numeric vector of shape (1, k); lb specifies the lower bounds for
-     the k variables
-ub -- numeric vector of shape (1, k); ub specifies the upper bounds for 
-     the k variables
-               
-Return:
-output -- A figure displaying the confidence region of the true optimum,
-         projected onto each pairwise-variable planes
--------------------------------------------------------------------------
 }
 \description{
 Draw pair-wise projected 2D plots for the optima confidence region

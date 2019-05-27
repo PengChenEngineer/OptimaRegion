@@ -43,21 +43,6 @@ draw_2D_CR <- function(boot_optima, boost_optimum,
 #' @return a figure displaying the confidence region of the true optimum,
 #'         projected onto each pairwise-variable planes
 draw_2D_CRs <- function(boot_optima, boost_optimum, lb, ub){
-  #'-------------------------------------------------------------------------
-  #'Arguments:
-  #'boot_optima -- numeric matrix of shape ((1 - alpha)B, k); it contains the
-  #'               (1 - alpha)B bootstrap optima
-  #'boost_optimum -- numeric vector of shape (1, k); the bootsted optimum; 
-  #'                 computed by taking the column average of boot_optima
-  #'lb -- numeric vector of shape (1, k); lb specifies the lower bounds for
-  #'      the k variables
-  #'ub -- numeric vector of shape (1, k); ub specifies the upper bounds for 
-  #'      the k variables
-  #'                
-  #'Return:
-  #'output -- A figure displaying the confidence region of the true optimum,
-  #'          projected onto each pairwise-variable planes
-  #'-------------------------------------------------------------------------
   k = ncol(boot_optima); par(mfrow = c(k - 1, k - 1))
   for(i in 1:(k - 1)){ # each row of the sub-figures
     for(j in 2:k){ # sub-figure in each row
