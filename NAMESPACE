@@ -3,6 +3,7 @@
 export(GloptiPolyR)
 export(GloptiPolyRegion)
 export(OptRegionQuad)
+export(OptRegionTps)
 importFrom(grDevices,chull)
 importFrom(grDevices,dev.off)
 importFrom(grDevices,heat.colors)
