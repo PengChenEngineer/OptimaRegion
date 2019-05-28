@@ -23,7 +23,7 @@ draw_2D_CR <- function(boot_optima, boost_optimum,
   CR_area <- geometry::polyarea(boot_optima[id_cvx_hull, 1], 
                                 boot_optima[id_cvx_hull, 2])
   # cluster the bootstrap optima
-  cluster_boot_optima <- try( # in case of "perfect data"
+  cluster_boot_optima <- try( # in case of perfect fit
     mclust::densityMclust(boot_optima, verbose = FALSE),
     silent = TRUE
   )
