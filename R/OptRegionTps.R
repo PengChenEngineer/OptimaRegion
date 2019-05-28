@@ -51,11 +51,11 @@
 #' @importFrom graphics contour image lines par plot points polygon
 #' @importFrom stats fitted lm resid vcov
 #' @export
-OptRegionTps<-function(X, y, lambda = 0.04, nosim = 1000,alpha = 0.05, LB, UB,
-                       triangularRegion = FALSE, vertex1 = NULL, vertex2 = NULL, 
-                       maximization = TRUE, 
-                       xlab = "Protein eaten, mg", ylab = "Carbohydrate eaten, mg",
-                       outputPDFFile = "CRplot.pdf", outputOptimaFile = "Optima.txt"){
+OptRegionTps <- function(X, y, lambda = 0.04, nosim = 1000,alpha = 0.05, LB, UB,
+                         triangularRegion = FALSE, vertex1 = NULL, vertex2 = NULL, 
+                         maximization = TRUE, 
+                         xlab = "Protein eaten, mg", ylab = "Carbohydrate eaten, mg",
+                         outputPDFFile = "CRplot.pdf", outputOptimaFile = "Optima.txt"){
   # Check that X matrix has k=2 factors
   k=dim(X)[2]
   if((k>2)|(k<2)) stop('Error. Number of factors must equal to 2')
