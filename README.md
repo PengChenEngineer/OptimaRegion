@@ -6,3 +6,4 @@ Contributors: Enrique del Castillo, John Hunt, and James Rapkin, Peng Chen, Adam
 
 ## To do 
 - [ ] Make arguments' names consistent between old and new functions
+- [ ] Change xlab and ylab for OptRegionQuad?
