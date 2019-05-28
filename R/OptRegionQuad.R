@@ -11,67 +11,78 @@
 #' and a smoothed contour plot of the X,y data obtained via thin plate splines is
 #' shown as well.
 #' 
+#' This program approximates the confidence region (CR) of the location of 
+#' the optimum of a regression function in 2 regressors x constrained inside 
+#' a rectangular region defined by LB and UB. If triangularRegion = TRUE it will also
+#' contrain the optimum to lie inside the experimental region assumed to be well 
+#' approximated by a triangle. The CR is generated pointwise by simulating from the
+#' posterior of the regression parameters (theta) and solving the corresponding 
+#' constrained maximization problem. The confidence region is approximated by the convex
+#' hull of all the solutions found. The simulation approach is based on the "CS" 
+#' bootstrapping approach for building a confidence set described in:
+#' Wourtesen, T., and Ham, J.C., "Confidence Sets for Continuous and Discontinuous 
+#' Functions of Parameters", Technical Report, Dept. of Economics, U. of Maryland, 
+#' http://econweb.umd.edu/~ham/. This version of the program uses nonparamteric 
+#' bootstrapping confidence regions to get the posterior of the parameters of the 
+#' regression equation using the notion of data depth according to:
+#' Yeh, A.B., and Singh, K., "Balanced Confidence Regions Based on Tukey's Depth and
+#' the Bootstrap", J.R. Statist. Soc. B, 59 (3), pp. 639-652, 1997.
+#' Hence, this version does not rely on any normality assumption on the data.
+#' 
+#' Version: March 8, 2016
+#' 
+#' @author E. del Castillo, Penn State University (IME and Statistics Depts.), 
+#'         John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences
 #' @param X nx2 matrix with the values of the 2 regressors (experimental factors) 
 #'          in the n observations
 #' @param y nx1 vector of response value observations
-#' @param nosim number of simulations(default=200)
+#' @param nosim number of simulations (default = 200)
+#' @param alpha confidence level (0 < alpha < 1; default = 0.05)
+#' @param LB vector of lower bounds for x (2x1 vector) above which the maximum is sought
+#' @param UB vector of upper bounds for x (2x1 vector) below which the maximum is sought
+#' @param triangularRegion logical: if TRUE it will constrain the maximum points to lie 
+#'                         inside a triangle defined by the coordinates (0,0), and those
+#'                         in 'vertex1', and 'vertex2', see below (in addition to being 
+#'                         constrained to lie inside the region defined by LB and UB). 
+#'                         NOTE: use TRUE when the treatments form a triangular 
+#'                         experimental region in shape. If FALSE, maxima will only be
+#'                         constrained to lie inside the rectangular region defined by 
+#'                         LB and UB. Default is FALSE.
+#' @param vertex1 2 times 1 vector with coordinates defining one of the 3 vertices of
+#'                a triangular region. Must be provided if triangularRegion is TRUE
+#'                (NOTE: vertices numbered clockwise)
+#' @param vertex2 2 times 1 vector with coordinates defining a second vertex of a
+#'                triangular region (third vertex is (0,0) by default). Must be provided
+#'                if triangularRegion is TRUE (NOTE: vertices numbered clockwise)
+#' @param maximization logical: if TRUE (default) it maximizes it FALSE it minimizes
+#' @param xlab text label for x axis in confidence region plot 
+#'             (default: "Protein eaten (mg)")
+#' @param ylab text label for y axis in confidence region plot 
+#'             (default: "Carbohydrates eaten (mg)")
+#' @param outputPDFFile name of the PDF file where the CR plot is saved 
+#'                      (default: "CR_plot.pdf")
+#' @return upon completion, a PDF file containing the CR plot with name as set in 
+#'         ouputPDFFile is created and the function also returns a list containing
+#'         the following 2 components:
+#'         \itemize{
+#'           \item{meanPoint: }{a 2x1 vector with the coordinates of the mean 
+#'                              optimum point}
+#'           \item{xin: }{an mx2 matrix with the x,y coordinates of all simulated
+#'                        points that belong to the confidence region (dim(m) is 
+#'                        (1-alpha)*nosim)}
+#'         }
 #' @importFrom grDevices chull dev.off heat.colors pdf
 #' @importFrom graphics contour image lines par plot points polygon
 #' @importFrom stats fitted lm resid vcov
 #' @export
-OptRegionQuad<-function(X,y,nosim=200,alpha=0.05,LB,UB,triangularRegion=FALSE, vertex1=NULL, vertex2=NULL, maximization=TRUE, xlab="Protein eaten, mg",ylab="Carbohydrates eaten, mg",outputPDFFile="CRplot.pdf"){
-  
-  #Computes and displays an approximated 100*(1-alpha)% confidence region (CR) for the linear-constrained maximum of a quadratic polynomial regression model in 2 controllable factors. Grey region on output plot is the approximate CR. The CR is computed as the convex hull of the coordinates of the optima found from simulating nosim quadratic polynomial regressions to the data (therefore, it is an approximate CR). The mean value of the optimum is shown as a red point, and a smoothed contour plot of the X,y data obtained via thin plate splines is shown as well.
-  #
-  # Usage assuming all default options:
-  
-  #    out<-OptRegionQuad(X=X,y=y,LB=LB,UB=UB)
-  
-  #Arguments:
-  
-  #       X--nx2 matrix with the values of the 2 regressors (experimental factors) in the n observations
-  #       y--nx1 vector of response value observations
-  #       nosim--number of simulations(default=200)
-  #       alpha--confidence level (0<alpha<1; default=0.05)
-  #       LB--vector of lower bounds for x (2x1 vector) above which the maximum is sought
-  #       UB--vector of upper bounds for x (2x1 vector) below which the maximum is sought
-  #       triangularRegion--logical: if TRUE it will constrain the maximum points to lie inside a triangle defined by     #       the coordinates (0,0), and those in 'vertex1', and 'vertex2', see below (in addition to being constrained to
-  #       lie inside the region defined by LB and UB). NOTE: use TRUE when the treatments form a triangular experimental   #       region in shape. If FALSE, maxima will only be constrained to lie inside the rectangular region defined by LB   #       and UB. Default is FALSE.
-  #       vertex1---2 times 1 vector with coordinates defining one of the 3 vertices of a triangular region. Must be provided if triangularRegion is TRUE (NOTE: vertices numbered clockwise)
-  #       vertex2--2 times 1 vector with coordinates defining a second  vertex of a triangular region (third vertex is (0,0) by default). Must be provided if triangularRegion is TRUE (NOTE: vertices numbered clockwise)
-  #       maximization--logical: if TRUE (default) it maximizes it FALSE it minimizes
-  #       xlab--text label for x axis in confidence region plot (default: "Protein eaten (mg)")
-  #       ylab--text label for y axis in confidence region plot (default: "Carbohydrates eaten (mg)")
-  #       outputPDFFile--name of the PDF file where the CR plot is saved (default: "CR_plot.pdf")
-  
-  #Details:
-  
-  # This program approximates the confidence region (CR) of the location of the optimum of a regression function in 2 regressors x constrained inside  a rectangular region defined by LB and UB. If triangularRegion=TRUE it will also contrain the optimum to lie inside the experimental region assumed to be well approximated by a triangle. The CR is generated pointwise by simulating from the posterior of the regression parameters (theta) and solving the corresponding constrained maximization problem. The confidence region is approximated by the convex hull of all the solutions found. The simulation approach is based on the "CS" bootstrapping approach for building a confidence set described in:
-  #Wourtesen, T., and Ham, J.C., "Confidence Sets for Continuous and Discontinuous Functions of Parameters", Technical Report, Dept. of Economics, U. of Maryland, http://econweb.umd.edu/~ham/
-  #This version of the program uses nonparamteric bootstrapping confidence regions to get the posterior of the parameters of the regression equation using the notion of data depth according to:
-  #Yeh, A.B., and Singh, K., "Balanced Confidence Regions Based on Tukey's Depth and the Bootstrap",
-  #J.R. Statist. Soc. B, 59 (3), pp. 639-652, 1997.
-  # Hence, this version does not rely on any normality assumption on the data.
-  
-  
-  #Value:
-  
-  #         meanPoint--a 2x1 vector with the coordinates of the mean optimum point
-  #         xin--an mx2 matrix with the x,y coordinates of all simulated
-  #points that belong to the confidence region (dim(m) is (1-alpha)*nosim)
-  #         Upon completion, a PDF file containing the CR plot with name as set in ouputPDFFile  is created
-  
-  #Uses:
-  #         nloptr, fields, DepthProc
-  
-  #Written by E. del Castillo, Penn State University (IME and Statistics Depts.), John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences
-  # Version: March 8, 2016
-  ##########################################################################################################
-  
+OptRegionQuad <- function(X, y, nosim = 200, alpha = 0.05, LB, UB, 
+                          triangularRegion = FALSE, vertex1 = NULL, vertex2 = NULL,
+                          maximization = TRUE, 
+                          xlab = "Protein eaten, mg", ylab = "Carbohydrates eaten, mg",
+                          outputPDFFile = "CRplot.pdf"){
   # Check this is for k=2 factors only
   k=dim(X)[2]
   if((k>2)|(k<2)) stop('Error. Number of factors must equal to 2')
-  
   
   # If experimental region was specified as triangular, compute the parameteres defining the 3 lines that approximate its shape.
   if(triangularRegion){
