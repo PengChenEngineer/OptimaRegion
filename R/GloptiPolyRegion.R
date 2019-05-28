@@ -15,6 +15,7 @@
 #'              confidence level, 1 - alpha, of the confidence region
 #' @param maximization boolean scalor; if specifies whether the algorithm 
 #'                     computes the confidence region for the maxima or minima
+#' @param verbose boolean scalor; it specifies whether to display running status
 #' @return a figure displaying the confidence region of the true optimum,
 #'         projected onto each pairwise-variable planes and a list consisting
 #'         of 2 components: 
@@ -26,8 +27,8 @@
 #'                               of boot_optima}
 #'         }
 #' @export                          
-GloptiPolyRegion <- function(X, y, degree, lb, ub, 
-                             B = 200, alpha = 0.05, maximization = TRUE){
+GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
+                            maximization = TRUE, verbose = TRUE){
   # Check polynomial order -- -----------------------------------------------
   if(degree < 2 || degree > 3){
     stop("This function accepts only quadratic or cubic polynomials!")
@@ -37,7 +38,6 @@ GloptiPolyRegion <- function(X, y, degree, lb, ub,
     stop("This function accepts only 2 - 5 variables!")
   }
   # Simplify function arguments ---------------------------------------------
-  verbose = TRUE # print function status 
   plot_CR = TRUE # draw pairwise projected CR's 
   scale = TRUE # scale X to [-1, 1]
   # Original fit ------------------------------------------------------------
@@ -91,7 +91,7 @@ GloptiPolyRegion <- function(X, y, degree, lb, ub,
   boost_optimum <- apply(boot_optima, 2, mean)
   # plotting ----------------------------------------------------------------
   if(plot_CR){
-    print("Ploting the confidence region ... ")
+    if(verbose) print("Ploting the confidence region ... ")
     draw_2D_CRs(boot_optima, boost_optimum, lb, ub)
   }
   # return ------------------------------------------------------------------

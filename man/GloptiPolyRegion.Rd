@@ -5,7 +5,7 @@
 \title{Compute confidence regions for polynomial models' optima}
 \usage{
 GloptiPolyRegion(X, y, degree, lb, ub, B = 200, alpha = 0.05,
-  maximization = TRUE)
+  maximization = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{X}{numeric matrix of shape (N, k); N is the sample size; k is the 
@@ -30,6 +30,8 @@ confidence level, 1 - alpha, of the confidence region}
 
 \item{maximization}{boolean scalor; if specifies whether the algorithm 
 computes the confidence region for the maxima or minima}
+
+\item{verbose}{boolean scalor; it specifies whether to display running status}
 }
 \value{
 a figure displaying the confidence region of the true optimum,
