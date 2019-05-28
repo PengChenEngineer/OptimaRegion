@@ -1,5 +1,8 @@
 #' Compute confidence regions for polynomial models' optima
 #' 
+#' @author E. del Castillo, Penn State University, IME and Statistics Depts,
+#'         John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
+#'         Peng Chen and Adam Meyers, Penn State University, IME Dept.
 #' @param X numeric matrix of shape (N, k); N is the sample size; k is the 
 #'          number of variables, which can be 2, 3, 4 and 5; X specifies the 
 #'          design matrix

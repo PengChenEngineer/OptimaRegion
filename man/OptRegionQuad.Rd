@@ -11,9 +11,12 @@ OptRegionQuad(X, y, nosim = 200, alpha = 0.05, LB, UB,
 }
 \arguments{
 \item{X}{nx2 matrix with the values of the 2 regressors (experimental factors) 
-in the n observations}
+in the n observations. Note: this can have replicates. 
+They will be eliminated by the program and the corresponding 
+y-values averaged}
 
-\item{y}{nx1 vector of response value observations}
+\item{y}{nx1 vector of response value observations, in the same order corresponding 
+to the rows of X}
 
 \item{nosim}{number of simulations (default = 200)}
 
@@ -57,7 +60,8 @@ upon completion, a PDF file containing the CR plot with name as set in
         the following 2 components:
         \itemize{
           \item{meanPoint: }{a 2x1 vector with the coordinates of the mean 
-                             optimum point}
+                             optimum point (displayed as a red dot in the CR 
+                             plot in output PDF file)}
           \item{xin: }{an mx2 matrix with the x,y coordinates of all simulated
                        points that belong to the confidence region (dim(m) is 
                        (1-alpha)*nosim)}
@@ -95,6 +99,7 @@ Hence, this version does not rely on any normality assumption on the data.
 Version: March 8, 2016
 }
 \author{
-E. del Castillo, Penn State University (IME and Statistics Depts.), 
-        John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences
+E. del Castillo, Penn State University, IME and Statistics Depts,
+        John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
+        Peng Chen and Adam Meyers, Penn State University, IME Dept.
 }

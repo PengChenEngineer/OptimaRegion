@@ -1,5 +1,3 @@
-#Male.Encap<-read.table("Male_encap.txt", header=T)
-
 #' Compute confidence regions for quadratic model's optima
 #' 
 #' Computes and displays an approximated (1 - alpha) confidence region (CR) for 
@@ -31,11 +29,15 @@
 #' 
 #' Version: March 8, 2016
 #' 
-#' @author E. del Castillo, Penn State University (IME and Statistics Depts.), 
-#'         John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences
+#' @author E. del Castillo, Penn State University, IME and Statistics Depts,
+#'         John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
+#'         Peng Chen and Adam Meyers, Penn State University, IME Dept.
 #' @param X nx2 matrix with the values of the 2 regressors (experimental factors) 
-#'          in the n observations
-#' @param y nx1 vector of response value observations
+#'          in the n observations. Note: this can have replicates. 
+#'          They will be eliminated by the program and the corresponding 
+#'          y-values averaged
+#' @param y nx1 vector of response value observations, in the same order corresponding 
+#'          to the rows of X
 #' @param nosim number of simulations (default = 200)
 #' @param alpha confidence level (0 < alpha < 1; default = 0.05)
 #' @param LB vector of lower bounds for x (2x1 vector) above which the maximum is sought
@@ -66,7 +68,8 @@
 #'         the following 2 components:
 #'         \itemize{
 #'           \item{meanPoint: }{a 2x1 vector with the coordinates of the mean 
-#'                              optimum point}
+#'                              optimum point (displayed as a red dot in the CR 
+#'                              plot in output PDF file)}
 #'           \item{xin: }{an mx2 matrix with the x,y coordinates of all simulated
 #'                        points that belong to the confidence region (dim(m) is 
 #'                        (1-alpha)*nosim)}
@@ -345,4 +348,3 @@ computeH<-function(x,betaCoef,maximization){
     return(-H)}
   else{return(H)}
 }
-

@@ -48,3 +48,8 @@ a figure displaying the confidence region of the true optimum,
 \description{
 Compute confidence regions for polynomial models' optima
 }
+\author{
+E. del Castillo, Penn State University, IME and Statistics Depts,
+        John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
+        Peng Chen and Adam Meyers, Penn State University, IME Dept.
+}
