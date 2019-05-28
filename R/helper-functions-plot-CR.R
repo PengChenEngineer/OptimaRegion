@@ -23,14 +23,23 @@ draw_2D_CR <- function(boot_optima, boost_optimum,
   CR_area <- geometry::polyarea(boot_optima[id_cvx_hull, 1], 
                                 boot_optima[id_cvx_hull, 2])
   # cluster the bootstrap optima
-  cluster_boot_optima <- mclust::densityMclust(boot_optima, verbose = FALSE)
-  # plot contours of estimated density of the bootstrap optima
-  plot(cluster_boot_optima, what = "density", type = "hdr", col = "gray",
-       xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim)
-  # plot the bootstrap optima points
-  points(boot_optima, col = "black", cex = 0.5, pch = 16, 
+  cluster_boot_optima <- try( # in case of "perfect data"
+    mclust::densityMclust(boot_optima, verbose = FALSE),
+    silent = TRUE
+  )
+  if(!inherits(cluster_boot_optima, "try-error")){
+    # plot contours of estimated density of the bootstrap optima
+    plot(cluster_boot_optima, what = "density", type = "hdr", col = "gray",
+         xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim)
+    # plot the bootstrap optima points
+    points(boot_optima, col = "black", cex = 0.5, pch = 16, 
+           xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim, 
+           main = paste(main, "with area = ", round(CR_area, 2)))
+  }else{
+    plot(boot_optima, col = "black", cex = 0.5, pch = 16, 
          xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim, 
          main = paste(main, "with area = ", round(CR_area, 2)))
+  }
   # plot the boundary of the convex hull of the bootstrap optima
   lines(boot_optima[id_cvx_hull, ], col = "black")
   # plot the boosted optimum
