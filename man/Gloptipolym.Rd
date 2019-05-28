@@ -21,6 +21,9 @@ the k variables}
 
 \item{ub}{numeric vector of shape (1, k); ub specifies the upper bounds for 
 the k variables}
+
+\item{maximization}{boolean scalor; if specifies whether the algorithm 
+computes the confidence region for the maxima or minima}
 }
 \value{
 the optimal solution and its corresponding objective value

@@ -2,10 +2,7 @@
 #' 
 #' @param Xi numeric matrix of shape (N, k); Xi specifies the points in
 #'           original units
-#' @param lb numeric vector of shape (1, k); lb specifies the lower bounds for
-#'           the k variables in original units
-#' @param ub numeric vector of shape (1, k); ub specifies the upper bounds for 
-#'           the k variables in original units
+#' @inheritParams GloptiPolyRegion
 #' @return numeric matrix of shape (N, k); it specifies the points in the
 #'         (-1, 1) coded units
 encode_orthogonal <- function(Xi, lb, ub){
@@ -19,7 +16,7 @@ encode_orthogonal <- function(Xi, lb, ub){
 #' 
 #' @param X numeric matrix of shape (N, k); X specifies the points in
 #'          original units
-#' @inheritParams encode_orthogonal
+#' @inheritParams GloptiPolyRegion
 #' @return numeric matrix of shape (N, k); res specifies the points in
 #'         original units    
 decode_orthogonal <- function(X, lb, ub){

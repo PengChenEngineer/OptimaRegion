@@ -11,10 +11,10 @@ encode_orthogonal(Xi, lb, ub)
 original units}
 
 \item{lb}{numeric vector of shape (1, k); lb specifies the lower bounds for
-the k variables in original units}
+the k variables}
 
 \item{ub}{numeric vector of shape (1, k); ub specifies the upper bounds for 
-the k variables in original units}
+the k variables}
 }
 \value{
 numeric matrix of shape (N, k); it specifies the points in the

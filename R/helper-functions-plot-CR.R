@@ -48,7 +48,7 @@ draw_2D_CR <- function(boot_optima, boost_optimum,
 #' Draw pair-wise projected 2D plots for the optima confidence region
 #' 
 #' @inheritParams draw_2D_CR
-#' @inheritParams Gloptipolym
+#' @inheritParams GloptiPolyRegion
 #' @return a figure displaying the confidence region of the true optimum,
 #'         projected onto each pairwise-variable planes
 draw_2D_CRs <- function(boot_optima, boost_optimum, lb, ub){

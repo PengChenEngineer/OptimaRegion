@@ -8,12 +8,7 @@
 #' multi-dimentional arrays for the GloptiPolyR solver, with the help of 
 #' string-manipulation using regular expression
 #' 
-#' @param X numeric matrix of shape (N, k); N is the sample size; k is the 
-#'          number of variables, which can be 2, 3, 4 and 5; X specifies the 
-#'          design matrix
-#' @param y numeric vector of shape (N, 1); y specifies the responses
-#' @param degree integer scalor; degree specifies the order of the polynomial 
-#'               model, which can be 2 or 3
+#' @inheritParams GloptiPolyRegion
 #' @return an object of class "lm"
 fit_polym <- function(X, y, degree){
   data <- data.frame(X, y)
@@ -66,12 +61,7 @@ coef_name_to_array_index <- function(coefficients_name, k){
 #'                     coefficients of an "lm" objected formulated with the 
 #'                     polym function
 #' @param k integer scalor; it specifies the number of variables
-#' @param degree integer scalor; degree specifies the order of the polynomial 
-#'               model, which can be 2 or 3
-#' @param lb numeric vector of shape (1, k); lb specifies the lower bounds for
-#'           the k variables
-#' @param ub numeric vector of shape (1, k); ub specifies the upper bounds for 
-#'           the k variables
+#' @inheritParams GloptiPolyRegion
 #' @return the optimal solution and its corresponding objective value
 Gloptipolym <- function(coefficients, k, degree, lb, ub, maximization){
   Ps <- list() # argument for GloptiPolyR, a list of lists
