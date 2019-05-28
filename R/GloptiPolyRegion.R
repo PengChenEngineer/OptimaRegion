@@ -21,10 +21,10 @@
 #'         of 2 components: 
 #'         \itemize{
 #'           \item{boot_optima: }{numeric matrix of shape ((1 - alpha)B, k);
-#'                              it contains the (1 - alpha)B bootstrap optima}
+#'                                it contains the (1 - alpha)B bootstrap optima}
 #'           \item{boost_optimum: }{numeric vector of shape (1, k); the boosted 
-#'                               optimum; computed by taking the column average
-#'                               of boot_optima}
+#'                                  optimum; computed by taking the column average
+#'                                  of boot_optima}
 #'         }
 #' @export                          
 GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
