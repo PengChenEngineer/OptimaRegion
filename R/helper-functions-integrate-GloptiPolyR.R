@@ -46,6 +46,7 @@ fit_polym <- function(X, y, degree){
 #'         (power + 1) accommodating the zero power; its ith row specifies
 #'         the position of the coefficient of the ith nomomial term in the 
 #'         multi-dimensional array of the GloptiPolyR solver
+#' @importFrom magrittr "%>%"
 coef_name_to_array_index <- function(coefficients_name, k){
   array_index_string <- stringr::str_extract(coefficients_name, "(\\d\\.)+[\\d]")
   array_index_number <- matrix(NA, length(array_index_string), k)
