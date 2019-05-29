@@ -13,7 +13,6 @@ Imports:
   magrittr,
   mclust,
   nloptr,
-  qpdf,
   rsm,
   Rdsdp,
   spam,
