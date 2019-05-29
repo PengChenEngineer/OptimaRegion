@@ -67,7 +67,7 @@ set.seed(123)
 design_matrix <- sim_design(n = 200, m = 1, bounds_3D_quad)
 response <- sim_response(design_matrix, fun_3D_quad, noise_fun_3D_quad * 1)
 system.time(
-  CRO_3D_quad <- GloptiPolyRegion(X = design_matrix,
+  CRO_3D_quad <- OptimaRegion::GloptiPolyRegion(X = design_matrix,
                                   y = response,
                                   degree = 2,
                                   lb = bounds_3D_quad[1, ],
