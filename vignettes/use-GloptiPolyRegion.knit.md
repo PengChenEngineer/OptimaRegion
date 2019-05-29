@@ -1,13 +1,24 @@
-## ---- include = FALSE----------------------------------------------------
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+---
+title: "Using the GloptiPolyRegion function"
+author: "Enrique del Castillo, John Hunt, and James Rapkin, Peng Chen, Adam Meyers"
+date: "2019-05-29"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{use-GloptiPolyRegion}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
 
-## ----setup---------------------------------------------------------------
+
+
+
+```r
 library(OptimaRegion)
+```
 
-## ------------------------------------------------------------------------
+### Define a test function
+
+```r
 # Box and Draper Benmark Problem (1987, CH9)
 fun_3D_quad <- function(x){
   dim(x) <- c(3, 1)
@@ -20,8 +31,11 @@ fun_3D_quad <- function(x){
 }
 bounds_3D_quad <- rbind(rep(-2, 3), rep(2, 3))
 noise_fun_3D_quad <- 10
+```
 
-## ------------------------------------------------------------------------
+### Define subroutines to generate design matrix and noisy responses
+
+```r
 sim_design <- function(n, m = 1, bounds, method = "LHD"){
   design_matrix <- matrix(NA, nrow = n, ncol = ncol(bounds))
   if(method == "random"){
@@ -45,8 +59,11 @@ sim_response <- function(design_matrix, fun, sigma_noise){
   # f + MASS::mvrnorm(n = 1, mu = rep(0, N), Sigma = sigma_noise * diag(N))
   y
 }
+```
 
-## ---- fig.width = 7, fig.height = 7, fig.align = "center", warning = FALSE----
+### Test GloptiPolyRegion
+
+```r
 library(magrittr)
 set.seed(123)
 design_matrix <- sim_design(n = 200, m = 1, bounds_3D_quad)
@@ -61,5 +78,13 @@ system.time(
                                   maximization = FALSE,
                                   verbose = FALSE)
 )
-CRO_3D_quad$boost_optimum
+```
 
+<img src="use-GloptiPolyRegion_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
+
+```
+#>    user  system elapsed 
+#>    7.71    1.11   12.28
+CRO_3D_quad$boost_optimum
+#> [1]  1.148596 -1.069421 -0.114340
+```
