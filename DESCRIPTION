@@ -9,12 +9,14 @@ Imports:
   boot,
   DepthProc,
   fields,
+  magrittr,
   nloptr,
   rsm,
   Rdsdp,
   spam,
   tidyverse
 Suggests: 
+  lhs,
   knitr,
   rmarkdown
 VignetteBuilder: knitr
