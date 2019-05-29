@@ -9,19 +9,22 @@ Imports:
   boot,
   DepthProc,
   fields,
+  geometry,
   magrittr,
+  mclust,
   nloptr,
+  qpdf,
   rsm,
   Rdsdp,
   spam,
-  tidyverse
-Suggests: 
-  lhs,
+  stringr
+Suggests:
   knitr,
+  lhs,
   rmarkdown
 VignetteBuilder: knitr
 Description: Computes confidence regions on the location of response surface optima.
-License: GPL (>= 2)
+License: file LICENSE
 LazyData: true
 Encoding: UTF-8
 RoxygenNote: 6.1.1

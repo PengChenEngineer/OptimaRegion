@@ -51,6 +51,7 @@ draw_2D_CR <- function(boot_optima, boost_optimum,
 #' @inheritParams GloptiPolyRegion
 #' @return a figure displaying the confidence region of the true optimum,
 #'         projected onto each pairwise-variable planes
+#' @importFrom graphics plot.new
 draw_2D_CRs <- function(boot_optima, boost_optimum, lb, ub){
   k = ncol(boot_optima); par(mfrow = c(k - 1, k - 1))
   for(i in 1:(k - 1)){ # each row of the sub-figures

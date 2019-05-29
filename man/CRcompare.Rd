@@ -5,14 +5,13 @@
 \title{Compute confidence intervals on distance between two response optima}
 \usage{
 CRcompare(X1, y1, X2, y2, lambda = 0.04, nosim1and2 = 200,
-  alpha = 0.05, LB1, UB1, triangularRegion1 = FALSE, vertex11 = NULL,
-  vertex21 = NULL, maximization1 = TRUE,
-  outputPDFFile1 = "CR_plot1.pdf", outputOptimafile1 = "Optima1.txt",
-  LB2, UB2, triangularRegion2 = FALSE, vertex12 = NULL,
-  vertex22 = NULL, maximization2 = TRUE,
-  outputPDFFile2 = "CR_plot2.pdf", outputOptimafile2 = "Optima2.txt",
-  xlab1and2 = "Protein eaten (mg)",
-  ylab1and2 = "Carbohydrates eaten (mg)")
+  alpha = 0.05, LB1, LB2, UB1, UB2, triangularRegion1 = FALSE,
+  vertex11 = NULL, vertex21 = NULL, triangularRegion2 = FALSE,
+  vertex12 = NULL, vertex22 = NULL, maximization1 = TRUE,
+  maximization2 = TRUE, xlab1and2 = "Protein eaten (mg)",
+  ylab1and2 = "Carbohydrates eaten (mg)",
+  outputPDFFile1 = "CR_plot1.pdf", outputOptimaFile1 = "Optima1.txt",
+  outputPDFFile2 = "CR_plot2.pdf", outputOptimaFile2 = "Optima2.txt")
 }
 \arguments{
 \item{X1}{nx2 matrix with the values of the 2 regressors (experimental factors)
@@ -33,11 +32,19 @@ Tps model to both data sets}
 \item{nosim1and2}{number of simulations(default = 200) used to find each of the two
 confidence regions of optima}
 
+\item{alpha}{confidence level (0 < alpha < 1; default = 0.05)}
+
 \item{LB1}{vector of lower bounds for x (2x1 vector) above which the optimum
 is sought for the first response}
 
+\item{LB2}{vector of lower bounds for x (2x1 vector) above which the optimum
+is sought for the second response}
+
 \item{UB1}{vector of upper bounds for x (2x1 vector) below which the optimum
 is sought for the first response}
+
+\item{UB2}{vector of upper bounds for x (2x1 vector) below which the optimum
+is sought for the second response}
 
 \item{triangularRegion1}{logical: if TRUE it will constrain the maximum points of
 response 1 to lie inside a triangle defined by the coordinates (0,0), and those in
@@ -56,18 +63,6 @@ optimized. Must be provided if triangularRegion1 is TRUE
 vertex of a triangular region where the first response is being
 optimized. Must be provided if triangularRegion1 is TRUE}
 
-\item{maximization1}{logical: if TRUE (default) it maximizes response 1,
-if FALSE it minimizes it}
-
-\item{outputPDFFile1}{name of the PDF file where the CR plot of the
-first response is saved (default: "CR_plot.pdf")}
-
-\item{LB2}{vector of lower bounds for x (2x1 vector) above which the optimum
-is sought for the second response}
-
-\item{UB2}{vector of upper bounds for x (2x1 vector) below which the optimum
-is sought for the second response}
-
 \item{triangularRegion2}{logical: if TRUE it will constrain the maximum points of
 response 2 to lie inside a triangle defined by the coordinates (0,0), and those in
 "vertex12", and "vertex22", see below (in addition to being constrained to 
@@ -76,11 +71,20 @@ form a triangular experimental region in shape. If FALSE, optima will only be
 constrained to lie inside the rectangular region defined by LB2 and UB2. 
 Default is FALSE.}
 
-\item{maximization2}{logical: if TRUE (default) it maximizes response 2,
+\item{vertex12}{2 times 1 vector with coordinates defining one of the
+3 vertices of the triangular region where the second response is being
+optimized. Must be provided if triangularRegion2 is TRUE
+(NOTE: vertices numbered clockwise, with vertex0 fixed to (0,0))}
+
+\item{vertex22}{2 times 1 vector with coordinates defining a second
+vertex of a triangular region where the second response is being
+optimized. Must be provided if triangularRegion2 is TRUE}
+
+\item{maximization1}{logical: if TRUE (default) it maximizes response 1,
 if FALSE it minimizes it}
 
-\item{outputPDFFile2}{name of the PDF file where the CR plot of the
-second response is saved (default: "CR_plot.pdf")}
+\item{maximization2}{logical: if TRUE (default) it maximizes response 2,
+if FALSE it minimizes it}
 
 \item{xlab1and2}{text label for x axis in both confidence region plots 
 (default: "Protein eaten (mg)")}
@@ -88,17 +92,14 @@ second response is saved (default: "CR_plot.pdf")}
 \item{ylab1and2}{text label for y axis in both confidence region plots
 (default: "Carbohydrates eaten (mg)")}
 
-\item{vertext12}{2 times 1 vector with coordinates defining one of the
-3 vertices of the triangular region where the second response is being
-optimized. Must be provided if triangularRegion2 is TRUE
-(NOTE: vertices numbered clockwise, with vertex0 fixed to (0,0))}
-
-\item{vertext22}{2 times 1 vector with coordinates defining a second
-vertex of a triangular region where the second response is being
-optimized. Must be provided if triangularRegion2 is TRUE}
+\item{outputPDFFile1}{name of the PDF file where the CR plot of the
+first response is saved (default: "CR_plot.pdf")}
 
 \item{outputOptimaFile1}{name of the text file containing the coordinates of
 all the simulated optima of the first response}
+
+\item{outputPDFFile2}{name of the PDF file where the CR plot of the
+second response is saved (default: "CR_plot.pdf")}
 
 \item{outputOptimaFile2}{name of the text file containing the coordinates of
 all the simulated optima of the second response}
@@ -132,7 +133,7 @@ distance between the optima of two different responses. Requires program
 OptimumRegionTps.R to compute confidence regions on the optima of each response.
 }
 \details{
-Version: May 17, 2016
+Version: May 29, 2019
 }
 \author{
 E. del Castillo, Penn State University, IME and Statistics Depts,
