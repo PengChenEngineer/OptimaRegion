@@ -30,7 +30,7 @@ fun_3D_quad <- function(x){
                 7.13, 12.54, 2.73,
                 3.27, 2.73, 10.42),
               3, 3, TRUE) / 2
-  t(b) %*% x + t(x) %*% B %*% x
+  57.31 - t(b) %*% x - t(x) %*% B %*% x
 }
 bounds_3D_quad <- rbind(rep(-2, 3), rep(2, 3))
 noise_fun_3D_quad <- 10
@@ -68,7 +68,7 @@ sim_response <- function(design_matrix, fun, sigma_noise){
 library(magrittr)
 set.seed(123)
 design_matrix <- sim_design(n = 200, m = 1, bounds_3D_quad)
-response <- sim_response(design_matrix, fun_3D_quad, noise_fun_3D_quad * 1)
+response <- sim_response(design_matrix, fun_3D_quad, noise_fun_3D_quad * 0)
 system.time(
   CRO_3D_quad <- GloptiPolyRegion(X = design_matrix,
                                   y = response,
@@ -76,7 +76,6 @@ system.time(
                                   lb = bounds_3D_quad[1, ],
                                   ub = bounds_3D_quad[2, ],
                                   B = 200,
-                                  maximization = FALSE,
                                   verbose = FALSE)
 )
 CRO_3D_quad$boost_optimum
