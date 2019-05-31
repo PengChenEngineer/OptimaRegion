@@ -66,11 +66,11 @@ upon completion, a PDF file containing the CR plot with name as set in
         ouputPDFFile is created and a text file with all xin values is created too.
         Also, the also returns a list containing
         the following 2 components:
-        \itemize{
-          \item{meanPoint: }{a 2x1 vector with the coordinates of the mean optimum
+        \describe{
+          \item{meanPoint}{a 2x1 vector with the coordinates of the mean optimum
                              point (displayed as a red dot in the CR plot in output
                              PDF file)}
-          \item{xin: }{an mx2 matrix with the x,y coordinates of all simulated
+          \item{xin}{an mx2 matrix with the x,y coordinates of all simulated
                        points that belong to the confidence region (dim(m) is 
                        (1-alpha)*nosim)}
         }

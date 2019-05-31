@@ -108,18 +108,18 @@ all the simulated optima of the second response}
 upon completion, two PDF files with the CR plots and two text files
         with the coordinates of each set of optima are created, and the
         function also returns a list consisting of the following 5 components:
-        \itemize{
-          \item{dist: }{vector of distances between pairs of points taken 
+        \describe{
+          \item{dist}{vector of distances between pairs of points taken 
                         from each set of optima}
-          \item{mean: }{mean of dist}
-          \item{median: }{median of dist}
-          \item{ciMean: }{95% confidence interval for the mean of dist using
+          \item{mean}{mean of dist}
+          \item{median}{median of dist}
+          \item{ciMean}{95% confidence interval for the mean of dist using
                           bca bootstrapping; it is a vector with 5 columns, 
                           containing the signicance level, the next two 
                           containing the indices of the order statistics used
                           in the calculations and the final two the calculated
                           endpoints of the CI's.}
-          \item{ciMEdian: }{95% confidence interval for the median of dist 
+          \item{ciMEdian}{95% confidence interval for the median of dist 
                             using bca bootstrapping; it is a vector with 5 columns, 
                             containing the signicance level, the next two 
                             containing the indices of the order statistics used

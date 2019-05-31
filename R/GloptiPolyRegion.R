@@ -22,10 +22,10 @@
 #' @return a figure displaying the confidence region of the true optimum,
 #'         projected onto each pairwise-variable planes and a list consisting
 #'         of 2 components: 
-#'         \itemize{
-#'           \item{boot_optima: }{numeric matrix of shape ((1 - alpha)B, k);
+#'         \describe{
+#'           \item{boot_optima}{numeric matrix of shape ((1 - alpha)B, k);
 #'                                it contains the (1 - alpha)B bootstrap optima}
-#'           \item{boost_optimum: }{numeric vector of shape (1, k); the boosted 
+#'           \item{boost_optimum}{numeric vector of shape (1, k); the boosted 
 #'                                  optimum; computed by taking the column average
 #'                                  of boot_optima}
 #'         }
