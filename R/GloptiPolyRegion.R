@@ -31,10 +31,45 @@
 #'         }
 #' @examples 
 #' \dontrun{
+#' # run GloptiPolyRegion
 #' out <- GloptiPolyRegion(X = quad_3D$design_matrix, y = quad_3D$response, degree = 2, 
-#'                         lb = c(-2, -2, -2), ub = c(2, 2, 2), B = 200, alpha = 0.05, 
+#'                         lb = c(-2, -2, -2), ub = c(2, 2, 2), B = 2000, alpha = 0.1, 
 #'                         maximization = TRUE, verbose = TRUE)
+#' # check result
 #' str(out)
+#' 
+#' # define subroutines to draw 3D confidence reigon
+#' library(rgl)
+#' plot_3D_CR_demo <- function(X){
+#'   plot3d(X, col = "green",
+#'          type = "p", size = 5, alpha = 0.01,
+#'          xlab = "x1", ylab = "x2", zlab = "x3",
+#'          xlim = c(-2, 2), ylim = c(-2, 2), zlim = c(-2, 2))
+#'   crownhull(X, col = "green", alpha = 0.2)
+#'   points3d(X, add = TRUE, col = "green",
+#'            size = 2, alpha = 0.5)
+#'   X_ave <- apply(X, 2, mean)
+#'   points3d(X_ave[1],
+#'            X_ave[2],
+#'            X_ave[3],
+#'            add = TRUE, col = "red",
+#'            size = 10)
+#' }
+#' crownhull <- function(xyz, plotit = TRUE, col = "green", alpha = 0.8){
+#' if(is.list(xyz) && !is.data.frame(xyz))
+#'   p <- as.matrix(do.call("rbind", xyz))
+#' else
+#'   p <- as.matrix(xyz)
+#'  ch <- geometry::convhulln(p, "FA")
+#' if(plotit){
+#'   ch2 <- t(geometry::convhulln(p, "Qt"))
+#'   triangles3d(p[ch2,1], p[ch2,2], p[ch2,3], col = col, alpha = alpha, add = TRUE)
+#' }
+#' return(list(crownvolume = ch$vol, crownsurface = ch$area))
+#' }
+#'  
+#' # draw 3D confidence region based on out
+#' plot_3D_CR_demo(out$boot_optima)
 #' }
 #' @export                          
 GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
