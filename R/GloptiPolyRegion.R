@@ -29,6 +29,13 @@
 #'                                  optimum; computed by taking the column average
 #'                                  of boot_optima}
 #'         }
+#' @examples 
+#' \dontrun{
+#' out <- GloptiPolyRegion(X = quad_3D$design_matrix, y = quad_3D$response, degree = 2, 
+#'                         lb = c(-2, -2, -2), ub = c(2, 2, 2), B = 200, alpha = 0.05, 
+#'                         maximization = TRUE, verbose = TRUE)
+#' str(out)
+#' }
 #' @export                          
 GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
                             maximization = TRUE, verbose = TRUE){
