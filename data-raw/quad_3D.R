@@ -45,4 +45,4 @@ design_matrix <- sim_design(n = 200, m = 1, bounds_3D_quad)
 response <- sim_response(design_matrix, fun_3D_quad, noise_fun_3D_quad * 1)
 quad_3D <- list(design_matrix = design_matrix, response = response)
 
-usethis::use_data(quad_3D)
+usethis::use_data(quad_3D, overwrite = TRUE)
