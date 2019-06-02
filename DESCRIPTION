@@ -1,7 +1,7 @@
 Package: OptimaRegion
 Type: Package
 Title: Confidence Regions for Optima
-Version: 1.0
+Version: 1.1
 Author: Enrique del Castillo, John Hunt, and James Rapkin, Peng Chen, Adam Meyers
 Maintainer: Enrique del Castillo <exd13@psu.edu>
 Depends: R (>= 3.3.0)
