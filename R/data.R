@@ -1,3 +1,16 @@
+#'Mixture-amount experiment
+#'
+#'A pharmaceutical mixture-amount experiment in two components
+#'
+#'@format A data frame with 360 observations on the following 3 variables.
+#'\describe{
+#' \item{Component_1}{Component 1 amount (mg)}
+#' \item{Component_2}{Component 2 amount (mg)}
+#' \item{Percent}{Percent of cells killed (response)}
+#'}
+#'@examples
+#'plot(Drug[,1:2])
+"Drug"
 #' A simulated dataset based on a quadratic function
 #' 
 #' The dataset is simulated from the following function 
