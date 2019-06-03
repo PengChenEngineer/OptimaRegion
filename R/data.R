@@ -11,10 +11,10 @@
 #'@examples
 #'plot(Drug[,1:2])
 "Drug"
-#' A simulated dataset based on a quadratic function
+#' \insertCite{BoxDraper;textual}{OptimaRegion}'s Experimental Data
 #' 
 #' The dataset is simulated from the following function 
-#' \insertCite{BoxDraper}{OptimaRegion}:
+#' \insertCite{BoxDraper;textual}{OptimaRegion}:
 #' \deqn{
 #' f(x) =  57.31 + 1.5 x_1 - 2.13 x_2 + 1.81 x_3
 #' - 7.13 x_1 x_2 - 3.27 x_1 x_3 - 2.73 x_2 x_3 - 4.69 x_1^2 - 6.27 x_2^2 - 5.21 x_3^2,

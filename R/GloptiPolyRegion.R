@@ -32,7 +32,7 @@
 #' @examples 
 #' \dontrun{
 #' # run GloptiPolyRegion on a quadratic, 3 vars example
-#' out <- GloptiPolyRegion(X = quad_3D$design_matrix, y = quad_3D$response, degree = 2, 
+#' out <- GloptiPolyRegion(X = quad_3D[, 1:3], y = quad_3D[, 4], degree = 2, 
 #'                         lb = c(-2, -2, -2), ub = c(2, 2, 2), B = 2000, alpha = 0.1, 
 #'                         maximization = TRUE, verbose = TRUE)
 #' # check result
