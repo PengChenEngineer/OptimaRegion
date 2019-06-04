@@ -2,7 +2,7 @@
 % Please edit documentation in R/OptRegionQuad.R
 \name{OptRegionQuad}
 \alias{OptRegionQuad}
-\title{Compute confidence regions for quadratic model's optima}
+\title{CComputes Confidence Regions of Optima of Quadratic Polynomial Models}
 \usage{
 OptRegionQuad(X, y, nosim = 200, alpha = 0.05, LB, UB,
   triangularRegion = FALSE, vertex1 = NULL, vertex2 = NULL,
@@ -55,7 +55,7 @@ if triangularRegion is TRUE (NOTE: vertices numbered clockwise)}
 (default: "CR_plot.pdf")}
 }
 \value{
-upon completion, a PDF file containing the CR plot with name as set in 
+Upon completion, a PDF file containing the CR plot with name as set in 
         ouputPDFFile is created and the function also returns a list containing
         the following 2 components:
         \describe{
@@ -97,6 +97,27 @@ the Bootstrap", J.R. Statist. Soc. B, 59 (3), pp. 639-652, 1997.
 Hence, this version does not rely on any normality assumption on the data.
 
 Version: March 8, 2016
+}
+\examples{
+\dontrun{
+# Example 1: randomly generated 2-variable response surface data
+X <- cbind(runif(100, -2, 2), runif(100, -2, 2))
+y <- as.matrix(72 - 11.78 * X[,1] + 0.74 * X[,2] - 7.25 * X[,1]^2 - 7.55 * X[,2]^2 - 
+               4.85 * X[,1] * X[,2] + rnorm(100, 0, 8))
+# Find a 95 percent confidence region for the maximum of a quadratic polynomial
+# fitted to these data
+out <- OptRegionQuad(X = X, y = y, nosim = 200, LB = c(-2,-2), UB = c(2,2), 
+                     xlab = "X1", ylab = "X2")
+                     
+# Example 2: a mixture-amount experiment in two components (Drug dataset) with
+# non-normal data. Note triangular experimental region. Resulting 95\\\%
+# confidence region is pushed against the constraint and results in a
+# "thin line"
+out <- OptRegionQuad(X = Drug[, 1:2],y = Drug[, 3], nosim = 500, 
+LB = c(0, 0), UB = c(0.08, 11), xlab = "Component 1 (mg.)", 
+ylab = "Component 2 (mg.)", triangularRegion = TRUE,
+vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8), outputPDFFile = "Mixture_plot.pdf")
+}
 }
 \author{
 E. del Castillo, Penn State University, IME and Statistics Depts,

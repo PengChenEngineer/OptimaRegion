@@ -1,4 +1,4 @@
-#' Compute confidence regions for quadratic model's optima
+#' CComputes Confidence Regions of Optima of Quadratic Polynomial Models
 #' 
 #' Computes and displays an approximated (1 - alpha) confidence region (CR) for 
 #' the linear-constrained maximum of a quadratic polynomial regression model 
@@ -63,7 +63,7 @@
 #'             (default: "Carbohydrates eaten (mg)")
 #' @param outputPDFFile name of the PDF file where the CR plot is saved 
 #'                      (default: "CR_plot.pdf")
-#' @return upon completion, a PDF file containing the CR plot with name as set in 
+#' @return Upon completion, a PDF file containing the CR plot with name as set in 
 #'         ouputPDFFile is created and the function also returns a list containing
 #'         the following 2 components:
 #'         \describe{
@@ -74,6 +74,26 @@
 #'                        points that belong to the confidence region (dim(m) is 
 #'                        (1-alpha)*nosim)}
 #'         }
+#' @examples 
+#' \dontrun{
+#' # Example 1: randomly generated 2-variable response surface data
+#' X <- cbind(runif(100, -2, 2), runif(100, -2, 2))
+#' y <- as.matrix(72 - 11.78 * X[,1] + 0.74 * X[,2] - 7.25 * X[,1]^2 - 7.55 * X[,2]^2 - 
+#'                4.85 * X[,1] * X[,2] + rnorm(100, 0, 8))
+#' # Find a 95 percent confidence region for the maximum of a quadratic polynomial
+#' # fitted to these data
+#' out <- OptRegionQuad(X = X, y = y, nosim = 200, LB = c(-2,-2), UB = c(2,2), 
+#'                      xlab = "X1", ylab = "X2")
+#'                      
+#' # Example 2: a mixture-amount experiment in two components (Drug dataset) with
+#' # non-normal data. Note triangular experimental region. Resulting 95\%
+#' # confidence region is pushed against the constraint and results in a
+#' # "thin line"
+#' out <- OptRegionQuad(X = Drug[, 1:2],y = Drug[, 3], nosim = 500, 
+#' LB = c(0, 0), UB = c(0.08, 11), xlab = "Component 1 (mg.)", 
+#' ylab = "Component 2 (mg.)", triangularRegion = TRUE,
+#' vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8), outputPDFFile = "Mixture_plot.pdf")
+#' }
 #' @importFrom grDevices chull dev.off heat.colors pdf
 #' @importFrom graphics contour image lines par plot points polygon
 #' @importFrom stats fitted lm resid vcov
