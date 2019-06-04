@@ -1,4 +1,4 @@
-#' CComputes Confidence Regions of Optima of Quadratic Polynomial Models
+#' Computes Confidence Regions of Optima of Quadratic Polynomial Models
 #' 
 #' Computes and displays an approximated (1 - alpha) confidence region (CR) for 
 #' the linear-constrained maximum of a quadratic polynomial regression model 
@@ -90,9 +90,9 @@
 #' # confidence region is pushed against the constraint and results in a
 #' # "thin line"
 #' out <- OptRegionQuad(X = Drug[, 1:2],y = Drug[, 3], nosim = 500, 
-#' LB = c(0, 0), UB = c(0.08, 11), xlab = "Component 1 (mg.)", 
-#' ylab = "Component 2 (mg.)", triangularRegion = TRUE,
-#' vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8), outputPDFFile = "Mixture_plot.pdf")
+#'          LB = c(0, 0), UB = c(0.08, 11), xlab = "Component 1 (mg.)", 
+#'          ylab = "Component 2 (mg.)", triangularRegion = TRUE,
+#'          vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8), outputPDFFile = "Mixture_plot.pdf")
 #' }
 #' @importFrom grDevices chull dev.off heat.colors pdf
 #' @importFrom graphics contour image lines par plot points polygon

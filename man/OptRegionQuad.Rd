@@ -2,7 +2,7 @@
 % Please edit documentation in R/OptRegionQuad.R
 \name{OptRegionQuad}
 \alias{OptRegionQuad}
-\title{CComputes Confidence Regions of Optima of Quadratic Polynomial Models}
+\title{Computes Confidence Regions of Optima of Quadratic Polynomial Models}
 \usage{
 OptRegionQuad(X, y, nosim = 200, alpha = 0.05, LB, UB,
   triangularRegion = FALSE, vertex1 = NULL, vertex2 = NULL,
@@ -114,9 +114,9 @@ out <- OptRegionQuad(X = X, y = y, nosim = 200, LB = c(-2,-2), UB = c(2,2),
 # confidence region is pushed against the constraint and results in a
 # "thin line"
 out <- OptRegionQuad(X = Drug[, 1:2],y = Drug[, 3], nosim = 500, 
-LB = c(0, 0), UB = c(0.08, 11), xlab = "Component 1 (mg.)", 
-ylab = "Component 2 (mg.)", triangularRegion = TRUE,
-vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8), outputPDFFile = "Mixture_plot.pdf")
+         LB = c(0, 0), UB = c(0.08, 11), xlab = "Component 1 (mg.)", 
+         ylab = "Component 2 (mg.)", triangularRegion = TRUE,
+         vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8), outputPDFFile = "Mixture_plot.pdf")
 }
 }
 \author{
