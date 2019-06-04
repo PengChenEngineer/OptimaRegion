@@ -62,9 +62,9 @@ if triangularRegion is TRUE (NOTE: vertices numbered clockwise)}
 the optima found (same information as in output vector xin, see below)}
 }
 \value{
-upon completion, a PDF file containing the CR plot with name as set in
+Upon completion, a PDF file containing the CR plot with name as set in
         ouputPDFFile is created and a text file with all xin values is created too.
-        Also, the also returns a list containing
+        Also, the function returns a list containing
         the following 2 components:
         \describe{
           \item{meanPoint}{a 2x1 vector with the coordinates of the mean optimum
@@ -104,8 +104,12 @@ The TPS models are fit using Nychka's "fields" R package and its "Tps" function.
 
 Version: March 8 2016
 }
-\author{
-E. del Castillo, Penn State University, IME and Statistics Depts,
-        John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
-        Peng Chen and Adam Meyers, Penn State University, IME Dept.
+\section{Author(s)}{
+
+Enrique del Castillo \email{exd13@psu.edu},
+Peng Chen \email{pfc5098@psu.edu}, 
+Adam Meyers \email{akm5733@psu.edu},
+John Hunt \email{J.Hunt@exeter.ac.uk} and
+James Rapkin \email{jr297@exeter.ac.uk}.
 }
+

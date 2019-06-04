@@ -6,9 +6,6 @@
 #' 
 #' Version: May 29, 2019
 #' 
-#' @author E. del Castillo, Penn State University, IME and Statistics Depts,
-#'         John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
-#'         Peng Chen and Adam Meyers, Penn State University, IME Dept.
 #' @param X1 nx2 matrix with the values of the 2 regressors (experimental factors)
 #'           corresponding to the first response. Note: can have replicates. They 
 #'           will be eliminated by the program and the corresponding y-values averaged
@@ -74,7 +71,7 @@
 #'                          all the simulated optima of the first response
 #' @param outputOptimaFile2 name of the text file containing the coordinates of
 #'                          all the simulated optima of the second response
-#' @return upon completion, two PDF files with the CR plots and two text files
+#' @return Upon completion, two PDF files with the CR plots and two text files
 #'         with the coordinates of each set of optima are created, and the
 #'         function also returns a list consisting of the following 5 components:
 #'         \describe{
@@ -95,6 +92,7 @@
 #'                             in the calculations and the final two the calculated
 #'                             endpoints of the CI's.}
 #'         }
+#' @inheritSection OptRegionQuad Author(s)
 #' @importFrom stats median
 #' @export
 CRcompare <- function(X1, y1, X2, y2, lambda = 0.04, nosim1and2 = 200, alpha = 0.05,

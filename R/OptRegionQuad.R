@@ -29,9 +29,6 @@
 #' 
 #' Version: March 8, 2016
 #' 
-#' @author E. del Castillo, Penn State University, IME and Statistics Depts,
-#'         John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
-#'         Peng Chen and Adam Meyers, Penn State University, IME Dept.
 #' @param X nx2 matrix with the values of the 2 regressors (experimental factors) 
 #'          in the n observations. Note: this can have replicates. 
 #'          They will be eliminated by the program and the corresponding 
@@ -74,6 +71,13 @@
 #'                        points that belong to the confidence region (dim(m) is 
 #'                        (1-alpha)*nosim)}
 #'         }
+#' @section Author(s):
+#' Enrique del Castillo \email{exd13@psu.edu},
+#' Peng Chen \email{pfc5098@psu.edu}, 
+#' Adam Meyers \email{akm5733@psu.edu},
+#' John Hunt \email{J.Hunt@exeter.ac.uk} and
+#' James Rapkin \email{jr297@exeter.ac.uk}.
+#' 
 #' @examples 
 #' \dontrun{
 #' # Example 1: randomly generated 2-variable response surface data

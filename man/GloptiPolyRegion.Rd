@@ -48,9 +48,18 @@ a figure displaying the confidence region of the true optimum,
 \description{
 Compute confidence regions for polynomial models' optima
 }
+\section{Author(s)}{
+
+Enrique del Castillo \email{exd13@psu.edu},
+Peng Chen \email{pfc5098@psu.edu}, 
+Adam Meyers \email{akm5733@psu.edu},
+John Hunt \email{J.Hunt@exeter.ac.uk} and
+James Rapkin \email{jr297@exeter.ac.uk}.
+}
+
 \examples{
 \dontrun{
-# run GloptiPolyRegion on a quadratic, 3 vars example
+# Example 1: run GloptiPolyRegion on a quadratic, 3 vars example
 out <- GloptiPolyRegion(X = quad_3D[, 1:3], y = quad_3D[, 4], degree = 2, 
                         lb = c(-2, -2, -2), ub = c(2, 2, 2), B = 2000, alpha = 0.1, 
                         maximization = TRUE, verbose = TRUE)
@@ -90,16 +99,11 @@ return(list(crownvolume = ch$vol, crownsurface = ch$area))
 # draw 3D confidence region based on out
 plot_3D_CR_demo(out$boot_optima)
 
-# run GloptiPolyRegion on a cubic, 5 vars example
+# Example 2: run GloptiPolyRegion on a cubic, 5 vars example
 out <- GloptiPolyRegion(X = cubic_5D$design_matrix, y = cubic_5D$response,  
                         degree = 3, lb = rep(0, 5), ub = rep(5, 5), B = 2000,  
                         alpha = 0.05, maximization = TRUE, verbose = TRUE)
 # check result
 str(out)
 }
-}
-\author{
-E. del Castillo, Penn State University, IME and Statistics Depts,
-        John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
-        Peng Chen and Adam Meyers, Penn State University, IME Dept.
 }

@@ -3,14 +3,12 @@
 #' Optimize a quadratic or cubic polynomial functionin 2 ~ 5 variables 
 #' with bound constraints.
 #' 
-#' @author E. del Castillo, Penn State University, IME and Statistics Depts,
-#'         John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
-#'         Peng Chen and Adam Meyers, Penn State University, IME Dept.
 #' @param P A list of list; Each sub-list has 2 components: 
 #' 1. a multi-dimensional array corresponding to a objective or constraint function
 #' 2. an attribute of the objective or constraint function
 #' 
 #' @return the optimal solution and its corresponding objective value
+#' @inheritSection OptRegionQuad Author(s)
 #' @export
 GloptiPolyR <- function(P){
   # Check polynomial order --------------------------------------------------

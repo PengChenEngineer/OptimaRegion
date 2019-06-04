@@ -27,17 +27,14 @@
 #' 
 #' Version: March 8 2016  
 #' 
-#' @author E. del Castillo, Penn State University, IME and Statistics Depts,
-#'         John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
-#'         Peng Chen and Adam Meyers, Penn State University, IME Dept.
 #' @inheritParams OptRegionQuad
 #' @param lambda penalization parameter (larger values implies more smoothing). 
 #'               Default is 0.04
 #' @param outputOptimaFile name of the text file containing the coordinates of all
 #'        the optima found (same information as in output vector xin, see below)
-#' @return upon completion, a PDF file containing the CR plot with name as set in
+#' @return Upon completion, a PDF file containing the CR plot with name as set in
 #'         ouputPDFFile is created and a text file with all xin values is created too.
-#'         Also, the also returns a list containing
+#'         Also, the function returns a list containing
 #'         the following 2 components:
 #'         \describe{
 #'           \item{meanPoint}{a 2x1 vector with the coordinates of the mean optimum
@@ -47,6 +44,7 @@
 #'                        points that belong to the confidence region (dim(m) is 
 #'                        (1-alpha)*nosim)}
 #'         }
+#' @inheritSection OptRegionQuad Author(s)
 #' @importFrom grDevices chull dev.off heat.colors pdf
 #' @importFrom graphics contour image lines par plot points polygon
 #' @importFrom stats fitted lm resid vcov

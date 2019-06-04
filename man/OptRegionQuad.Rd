@@ -98,6 +98,15 @@ Hence, this version does not rely on any normality assumption on the data.
 
 Version: March 8, 2016
 }
+\section{Author(s)}{
+
+Enrique del Castillo \email{exd13@psu.edu},
+Peng Chen \email{pfc5098@psu.edu}, 
+Adam Meyers \email{akm5733@psu.edu},
+John Hunt \email{J.Hunt@exeter.ac.uk} and
+James Rapkin \email{jr297@exeter.ac.uk}.
+}
+
 \examples{
 \dontrun{
 # Example 1: randomly generated 2-variable response surface data
@@ -118,9 +127,4 @@ out <- OptRegionQuad(X = Drug[, 1:2],y = Drug[, 3], nosim = 500,
          ylab = "Component 2 (mg.)", triangularRegion = TRUE,
          vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8), outputPDFFile = "Mixture_plot.pdf")
 }
-}
-\author{
-E. del Castillo, Penn State University, IME and Statistics Depts,
-        John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
-        Peng Chen and Adam Meyers, Penn State University, IME Dept.
 }

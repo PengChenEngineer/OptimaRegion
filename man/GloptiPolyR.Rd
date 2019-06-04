@@ -18,8 +18,12 @@ the optimal solution and its corresponding objective value
 Optimize a quadratic or cubic polynomial functionin 2 ~ 5 variables 
 with bound constraints.
 }
-\author{
-E. del Castillo, Penn State University, IME and Statistics Depts,
-        John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
-        Peng Chen and Adam Meyers, Penn State University, IME Dept.
+\section{Author(s)}{
+
+Enrique del Castillo \email{exd13@psu.edu},
+Peng Chen \email{pfc5098@psu.edu}, 
+Adam Meyers \email{akm5733@psu.edu},
+John Hunt \email{J.Hunt@exeter.ac.uk} and
+James Rapkin \email{jr297@exeter.ac.uk}.
 }
+

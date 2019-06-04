@@ -1,8 +1,5 @@
 #' Compute confidence regions for polynomial models' optima
 #' 
-#' @author E. del Castillo, Penn State University, IME and Statistics Depts,
-#'         John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
-#'         Peng Chen and Adam Meyers, Penn State University, IME Dept.
 #' @param X numeric matrix of shape (N, k); N is the sample size; k is the 
 #'          number of variables, which can be 2, 3, 4 and 5; X specifies the 
 #'          design matrix
@@ -29,9 +26,10 @@
 #'                                  optimum; computed by taking the column average
 #'                                  of boot_optima}
 #'         }
+#' @inheritSection OptRegionQuad Author(s)
 #' @examples 
 #' \dontrun{
-#' # run GloptiPolyRegion on a quadratic, 3 vars example
+#' # Example 1: run GloptiPolyRegion on a quadratic, 3 vars example
 #' out <- GloptiPolyRegion(X = quad_3D[, 1:3], y = quad_3D[, 4], degree = 2, 
 #'                         lb = c(-2, -2, -2), ub = c(2, 2, 2), B = 2000, alpha = 0.1, 
 #'                         maximization = TRUE, verbose = TRUE)
@@ -71,7 +69,7 @@
 #' # draw 3D confidence region based on out
 #' plot_3D_CR_demo(out$boot_optima)
 #' 
-#' # run GloptiPolyRegion on a cubic, 5 vars example
+#' # Example 2: run GloptiPolyRegion on a cubic, 5 vars example
 #' out <- GloptiPolyRegion(X = cubic_5D$design_matrix, y = cubic_5D$response,  
 #'                         degree = 3, lb = rep(0, 5), ub = rep(5, 5), B = 2000,  
 #'                         alpha = 0.05, maximization = TRUE, verbose = TRUE)

@@ -105,7 +105,7 @@ second response is saved (default: "CR_plot.pdf")}
 all the simulated optima of the second response}
 }
 \value{
-upon completion, two PDF files with the CR plots and two text files
+Upon completion, two PDF files with the CR plots and two text files
         with the coordinates of each set of optima are created, and the
         function also returns a list consisting of the following 5 components:
         \describe{
@@ -135,8 +135,12 @@ OptimumRegionTps.R to compute confidence regions on the optima of each response.
 \details{
 Version: May 29, 2019
 }
-\author{
-E. del Castillo, Penn State University, IME and Statistics Depts,
-        John Hunt and James Rapkin, University of Exeter, Dept. of Biosciences,
-        Peng Chen and Adam Meyers, Penn State University, IME Dept.
+\section{Author(s)}{
+
+Enrique del Castillo \email{exd13@psu.edu},
+Peng Chen \email{pfc5098@psu.edu}, 
+Adam Meyers \email{akm5733@psu.edu},
+John Hunt \email{J.Hunt@exeter.ac.uk} and
+James Rapkin \email{jr297@exeter.ac.uk}.
 }
+
