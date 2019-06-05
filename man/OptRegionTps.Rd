@@ -2,7 +2,7 @@
 % Please edit documentation in R/OptRegionTps.R
 \name{OptRegionTps}
 \alias{OptRegionTps}
-\title{Compute confidence regions for thin plate spline model's optima}
+\title{Computes Confidence Regions of Optima of Thin Plate Spline Models}
 \usage{
 OptRegionTps(X, y, lambda = 0.04, nosim = 1000, alpha = 0.05, LB, UB,
   triangularRegion = FALSE, vertex1 = NULL, vertex2 = NULL,

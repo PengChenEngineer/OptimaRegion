@@ -1,4 +1,4 @@
-#' Compute confidence regions for thin plate spline model's optima
+#' Computes Confidence Regions of Optima of Thin Plate Spline Models
 #' 
 #' Computes and displays an approximated (1 - alpha) confidence region (CR) for 
 #' the linear-constrained maximum of a penalized Thin Plate Spline (TPS) model 
