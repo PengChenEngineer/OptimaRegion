@@ -78,7 +78,9 @@ Upon completion, a PDF file containing the CR plot with name as set in
 \description{
 Computes and displays an approximated (1 - alpha) confidence region (CR) for 
 the linear-constrained maximum of a penalized Thin Plate Spline (TPS) model 
-in 2 controllable factors. Generates a PDF file with a graph displaying the CR.
+in 2 controllable factors
+\insertCite{DelCastilloCR}{OptimaRegion}.
+Generates a PDF file with a graph displaying the CR.
 Grey region on output plot is the approximate CR. The mean coordinates (centroid)
 of the optima is shown as a red point.
 }
@@ -92,17 +94,14 @@ to the given (X,y) data, refitting Tps models, and solving the corresponding
 constrained maximization (or minimization) problems. The confidence region is
 approximated by the convex hull of all the optimal solutions found. The CR 
 computation is based on the "CS" bootstrapping approach for building a confidence set
-of a parametric function described in: Wourtesen, T., and Ham, J.C., "Confidence Sets
-for Continuous and Discontinuous Functions of Parameters", Technical Report, Dept. of
-Economics, U. of Maryland, http://econweb.umd.edu/~ham/. This version of the program
+of a parametric function described in
+\insertCite{WoutersenHam2013;textual}{OptimaRegion}.
+This version of the program
 uses nonparametric bootstrapping confidence regions to get the Confidence region of 
-the Tps parameters,using the notion of data depth according to:
-Yeh, A.B., and Singh, K., "Balanced Confidence Regions Based on Tukey's Depth and 
-the Bootstrap", J.R. Statist. Soc. B, 59 (3), pp. 639-652, 1997.
+the Tps parameters,using the notion of data depth according to
+\insertCite{yeh1997balanced;textual}{OptimaRegion}.
 Hence, this version does not rely on the normality assumption of the data.
 The TPS models are fit using Nychka's "fields" R package and its "Tps" function.
-
-Version: March 8 2016
 }
 \section{Author(s)}{
 
@@ -113,3 +112,26 @@ John Hunt \email{J.Hunt@exeter.ac.uk} and
 James Rapkin \email{jr297@exeter.ac.uk}.
 }
 
+\examples{
+\dontrun{
+# Example 1: randomly generated 2-variable response surface data
+X <- cbind(runif(100,-2,2),runif(100,-2,2))
+y <- as.matrix(72-11.78*X[,1]+0.74*X[,2]-7.25*X[,1]^2-7.55*X[,2]^2-4.85*X[,1]*X[,2]+rnorm(100,0,8))
+# Find a 95 percent confidence region for the maximum of a Thin Plate Spline
+# model fitted to these data
+out <- OptRegionTps(X = X, y = y, nosim = 200, LB = c(-2, -2), UB = c(2, 2), xlab = "X1",ylab = "X2")
+# Example 2: a mixture-amount experiment in two components (Drug dataset) with
+# non-normal data. Note triangular experimental region. Resulting 95p confidence
+# region of the maxima of a TPS model has area > 0. Contrast with region for
+# quadratic polynomial model. Note: 500 bootstrap iterations may take a few minutes.
+out <- OptRegionTps(X = Drug[, 1:2], y = Drug[, 3], nosim = 500, lambda = 0.05, LB = c(0, 0),
+         UB = c(0.08, 11), xlab = "Component 1 (mg.)", ylab = "Component 2 (mg.)",
+         triangularRegion = TRUE, vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8),
+         outputPDFFile = "Mixture_plot.pdf")
+}
+}
+\references{
+{
+ \insertAllCited{}
+}
+}
