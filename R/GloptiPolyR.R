@@ -1,14 +1,18 @@
-#' Optimize a quadratic or cubic polynomial function 
+#' Optimize a Quadratic or Cubic Polynomial Function 
 #' 
 #' Optimize a quadratic or cubic polynomial functionin 2 ~ 5 variables 
-#' with bound constraints.
+#' with bound constraints
+#' \insertCite{DelCastilloCR}{OptimaRegion}.
 #' 
 #' @param P A list of list; Each sub-list has 2 components: 
 #' 1. a multi-dimensional array corresponding to a objective or constraint function
 #' 2. an attribute of the objective or constraint function
 #' 
-#' @return the optimal solution and its corresponding objective value
+#' @return Returns the optimal solution and its corresponding objective value
 #' @inheritSection OptRegionQuad Author(s)
+#' @references{
+#'  \insertAllCited{}
+#' }
 #' @export
 GloptiPolyR <- function(P){
   # Check polynomial order --------------------------------------------------

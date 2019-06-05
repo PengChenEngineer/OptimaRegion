@@ -2,7 +2,7 @@
 % Please edit documentation in R/GloptiPolyR.R
 \name{GloptiPolyR}
 \alias{GloptiPolyR}
-\title{Optimize a quadratic or cubic polynomial function}
+\title{Optimize a Quadratic or Cubic Polynomial Function}
 \usage{
 GloptiPolyR(P)
 }
@@ -12,11 +12,12 @@ GloptiPolyR(P)
 2. an attribute of the objective or constraint function}
 }
 \value{
-the optimal solution and its corresponding objective value
+Returns the optimal solution and its corresponding objective value
 }
 \description{
 Optimize a quadratic or cubic polynomial functionin 2 ~ 5 variables 
-with bound constraints.
+with bound constraints
+\insertCite{DelCastilloCR}{OptimaRegion}.
 }
 \section{Author(s)}{
 
@@ -27,3 +28,8 @@ John Hunt \email{J.Hunt@exeter.ac.uk} and
 James Rapkin \email{jr297@exeter.ac.uk}.
 }
 
+\references{
+{
+ \insertAllCited{}
+}
+}
