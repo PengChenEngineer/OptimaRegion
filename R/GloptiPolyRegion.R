@@ -21,9 +21,9 @@
 #' @param maximization boolean scalor; if specifies whether the algorithm 
 #'                     computes the confidence region for the maxima or minima
 #' @param verbose boolean scalor; it specifies whether to display running status
-#' @return a figure displaying the confidence region of the true optimum,
-#'         projected onto each pairwise-variable planes and a list consisting
-#'         of 2 components: 
+#' @return Upon completion, a figure displaying the confidence region of the true optimum
+#'         projected onto each pairwise-variable planes will be created, and the function also 
+#'         returns a list consisting of 2 components: 
 #'         \describe{
 #'           \item{boot_optima}{numeric matrix of shape ((1 - alpha)B, k);
 #'                                it contains the (1 - alpha)B bootstrap optima}

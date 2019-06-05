@@ -34,9 +34,9 @@ computes the confidence region for the maxima or minima}
 \item{verbose}{boolean scalor; it specifies whether to display running status}
 }
 \value{
-a figure displaying the confidence region of the true optimum,
-        projected onto each pairwise-variable planes and a list consisting
-        of 2 components: 
+Upon completion, a figure displaying the confidence region of the true optimum
+        projected onto each pairwise-variable planes will be created, and the function also 
+        returns a list consisting of 2 components: 
         \describe{
           \item{boot_optima}{numeric matrix of shape ((1 - alpha)B, k);
                                it contains the (1 - alpha)B bootstrap optima}
