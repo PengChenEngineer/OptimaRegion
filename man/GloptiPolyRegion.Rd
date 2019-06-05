@@ -2,7 +2,7 @@
 % Please edit documentation in R/GloptiPolyRegion.R
 \name{GloptiPolyRegion}
 \alias{GloptiPolyRegion}
-\title{Compute confidence regions for polynomial models' optima}
+\title{Computes Confidence Regions for Optima of Higher Order Polynomial Models}
 \usage{
 GloptiPolyRegion(X, y, degree, lb, ub, B = 200, alpha = 0.05,
   maximization = TRUE, verbose = TRUE)
@@ -46,7 +46,10 @@ a figure displaying the confidence region of the true optimum,
         }
 }
 \description{
-Compute confidence regions for polynomial models' optima
+Computes and displays an approximated (1 - alpha) confidence region (CR) for 
+the bound-constrained maximum of a polynomial regression model in up to cubic order
+with up to 5 controllable factors
+\insertCite{DelCastilloCR}{OptimaRegion}.
 }
 \section{Author(s)}{
 
@@ -105,5 +108,10 @@ out <- GloptiPolyRegion(X = cubic_5D$design_matrix, y = cubic_5D$response,
                         alpha = 0.05, maximization = TRUE, verbose = TRUE)
 # check result
 str(out)
+}
+}
+\references{
+{
+ \insertAllCited{}
 }
 }

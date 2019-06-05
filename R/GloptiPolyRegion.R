@@ -1,4 +1,9 @@
-#' Compute confidence regions for polynomial models' optima
+#' Computes Confidence Regions for Optima of Higher Order Polynomial Models
+#' 
+#' Computes and displays an approximated (1 - alpha) confidence region (CR) for 
+#' the bound-constrained maximum of a polynomial regression model in up to cubic order
+#' with up to 5 controllable factors
+#' \insertCite{DelCastilloCR}{OptimaRegion}.
 #' 
 #' @param X numeric matrix of shape (N, k); N is the sample size; k is the 
 #'          number of variables, which can be 2, 3, 4 and 5; X specifies the 
@@ -27,6 +32,10 @@
 #'                                  of boot_optima}
 #'         }
 #' @inheritSection OptRegionQuad Author(s)
+#' @references{
+#'  \insertAllCited{}
+#' }
+#' @importFrom Rdpack reprompt
 #' @examples 
 #' \dontrun{
 #' # Example 1: run GloptiPolyRegion on a quadratic, 3 vars example
