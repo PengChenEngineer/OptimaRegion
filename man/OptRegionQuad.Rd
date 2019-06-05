@@ -70,7 +70,9 @@ Upon completion, a PDF file containing the CR plot with name as set in
 \description{
 Computes and displays an approximated (1 - alpha) confidence region (CR) for 
 the linear-constrained maximum of a quadratic polynomial regression model 
-in 2 controllable factors. Grey region on output plot is the approximate CR.
+in 2 controllable factors
+\insertCite{DelCastilloCR}{OptimaRegion}.
+Grey region on output plot is the approximate CR.
 The CR is computed as the convex hull of the coordinates of the optima found 
 from simulating nosim quadratic polynomial regressions to the data (therefore,
 it is an approximate CR). The mean value of the optimum is shown as a red point,
@@ -85,18 +87,15 @@ contrain the optimum to lie inside the experimental region assumed to be well
 approximated by a triangle. The CR is generated pointwise by simulating from the
 posterior of the regression parameters (theta) and solving the corresponding 
 constrained maximization problem. The confidence region is approximated by the convex
-hull of all the solutions found. The simulation approach is based on the "CS" 
-bootstrapping approach for building a confidence set described in:
-Wourtesen, T., and Ham, J.C., "Confidence Sets for Continuous and Discontinuous 
-Functions of Parameters", Technical Report, Dept. of Economics, U. of Maryland, 
-http://econweb.umd.edu/~ham/. This version of the program uses nonparamteric 
+hull of all the solutions found. 
+The simulation approach is based on the "CS" 
+bootstrapping approach for building a confidence set described in
+\insertCite{WoutersenHam2013;textual}{OptimaRegion}.
+This version of the program uses nonparamteric 
 bootstrapping confidence regions to get the posterior of the parameters of the 
-regression equation using the notion of data depth according to:
-Yeh, A.B., and Singh, K., "Balanced Confidence Regions Based on Tukey's Depth and
-the Bootstrap", J.R. Statist. Soc. B, 59 (3), pp. 639-652, 1997.
+regression equation using the notion of data depth according to
+\insertCite{yeh1997balanced;textual}{OptimaRegion}.
 Hence, this version does not rely on any normality assumption on the data.
-
-Version: March 8, 2016
 }
 \section{Author(s)}{
 
@@ -126,5 +125,10 @@ out <- OptRegionQuad(X = Drug[, 1:2],y = Drug[, 3], nosim = 500,
          LB = c(0, 0), UB = c(0.08, 11), xlab = "Component 1 (mg.)", 
          ylab = "Component 2 (mg.)", triangularRegion = TRUE,
          vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8), outputPDFFile = "Mixture_plot.pdf")
+}
+}
+\references{
+{
+ \insertAllCited{}
 }
 }

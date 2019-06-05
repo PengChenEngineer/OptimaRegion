@@ -2,7 +2,9 @@
 #' 
 #' Computes and displays an approximated (1 - alpha) confidence region (CR) for 
 #' the linear-constrained maximum of a quadratic polynomial regression model 
-#' in 2 controllable factors. Grey region on output plot is the approximate CR.
+#' in 2 controllable factors
+#' \insertCite{DelCastilloCR}{OptimaRegion}.
+#' Grey region on output plot is the approximate CR.
 #' The CR is computed as the convex hull of the coordinates of the optima found 
 #' from simulating nosim quadratic polynomial regressions to the data (therefore,
 #' it is an approximate CR). The mean value of the optimum is shown as a red point,
@@ -16,18 +18,15 @@
 #' approximated by a triangle. The CR is generated pointwise by simulating from the
 #' posterior of the regression parameters (theta) and solving the corresponding 
 #' constrained maximization problem. The confidence region is approximated by the convex
-#' hull of all the solutions found. The simulation approach is based on the "CS" 
-#' bootstrapping approach for building a confidence set described in:
-#' Wourtesen, T., and Ham, J.C., "Confidence Sets for Continuous and Discontinuous 
-#' Functions of Parameters", Technical Report, Dept. of Economics, U. of Maryland, 
-#' http://econweb.umd.edu/~ham/. This version of the program uses nonparamteric 
+#' hull of all the solutions found. 
+#' The simulation approach is based on the "CS" 
+#' bootstrapping approach for building a confidence set described in
+#' \insertCite{WoutersenHam2013;textual}{OptimaRegion}.
+#' This version of the program uses nonparamteric 
 #' bootstrapping confidence regions to get the posterior of the parameters of the 
-#' regression equation using the notion of data depth according to:
-#' Yeh, A.B., and Singh, K., "Balanced Confidence Regions Based on Tukey's Depth and
-#' the Bootstrap", J.R. Statist. Soc. B, 59 (3), pp. 639-652, 1997.
+#' regression equation using the notion of data depth according to
+#' \insertCite{yeh1997balanced;textual}{OptimaRegion}.
 #' Hence, this version does not rely on any normality assumption on the data.
-#' 
-#' Version: March 8, 2016
 #' 
 #' @param X nx2 matrix with the values of the 2 regressors (experimental factors) 
 #'          in the n observations. Note: this can have replicates. 
@@ -77,7 +76,10 @@
 #' Adam Meyers \email{akm5733@psu.edu},
 #' John Hunt \email{J.Hunt@exeter.ac.uk} and
 #' James Rapkin \email{jr297@exeter.ac.uk}.
-#' 
+#' @references{
+#'  \insertAllCited{}
+#' }
+#' @importFrom Rdpack reprompt
 #' @examples 
 #' \dontrun{
 #' # Example 1: randomly generated 2-variable response surface data
