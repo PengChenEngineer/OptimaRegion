@@ -55,6 +55,7 @@
 #' # Find a 95 percent confidence region for the maximum of a Thin Plate Spline
 #' # model fitted to these data
 #' out <- OptRegionTps(X = X, y = y, nosim = 200, LB = c(-2, -2), UB = c(2, 2), xlab = "X1",ylab = "X2")
+#' 
 #' # Example 2: a mixture-amount experiment in two components (Drug dataset) with
 #' # non-normal data. Note triangular experimental region. Resulting 95p confidence
 #' # region of the maxima of a TPS model has area > 0. Contrast with region for
