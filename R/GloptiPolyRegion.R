@@ -1,4 +1,4 @@
-#' Computes Confidence Regions for Optima of Higher Order Polynomial Model
+#' Computes Confidence Regions for Optima of Higher Order Polynomial Models
 #' 
 #' Computes and displays an approximated (1 - alpha) confidence region (CR) for 
 #' the bound-constrained maximum of a polynomial regression model in up to cubic order
