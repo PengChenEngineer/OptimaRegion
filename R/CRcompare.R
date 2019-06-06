@@ -1,13 +1,13 @@
 #' Compute confidence intervals on distance between two response optima
-#' 
+#'
 #' Computes distribution-free bootstrapped confidence intervals on the mean and median
 #' distance between the optima of two different responses
 #' \insertCite{DelCastilloCR}{OptimaRegion}.
-#' Requires program 
+#' Requires program
 #' OptimumRegionTps.R to compute confidence regions on the optima of each response.
-#' 
+#'
 #' @param X1 nx2 matrix with the values of the 2 regressors (experimental factors)
-#'           corresponding to the first response. Note: can have replicates. They 
+#'           corresponding to the first response. Note: can have replicates. They
 #'           will be eliminated by the program and the corresponding y-values averaged
 #' @param y1 nx1 vector of values for the first response corresponding to X1
 #' @param X2 nx2 matrix with the values of the 2 regressors (experimental factors)
@@ -29,24 +29,24 @@
 #'            is sought for the second response
 #' @param triangularRegion1 logical: if TRUE it will constrain the maximum points of
 #'  response 1 to lie inside a triangle defined by the coordinates (0,0), and those in
-#'  "vertex11", and "vertex21", see below (in addition to being constrained to 
+#'  "vertex11", and "vertex21", see below (in addition to being constrained to
 #'  lie inside the region defined by LB1 and UB1). NOTE: use TRUE when the treatments
-#'  form a triangular experimental region in shape. If FALSE, optima will only be 
-#'  constrained to lie inside the rectangular region defined by LB1 and UB1. 
+#'  form a triangular experimental region in shape. If FALSE, optima will only be
+#'  constrained to lie inside the rectangular region defined by LB1 and UB1.
 #'  Default is FALSE.
 #' @param vertex11 2 times 1 vector with coordinates defining one of the
 #'   3 vertices of the triangular region where the first response is being
 #'   optimized. Must be provided if triangularRegion1 is TRUE
-#'   (NOTE: vertices numbered clockwise, with vertex0 fixed to (0,0))  
+#'   (NOTE: vertices numbered clockwise, with vertex0 fixed to (0,0))
 #' @param vertex21 2 times 1 vector with coordinates defining a second
 #'   vertex of a triangular region where the first response is being
 #'   optimized. Must be provided if triangularRegion1 is TRUE
 #' @param triangularRegion2 logical: if TRUE it will constrain the maximum points of
 #'  response 2 to lie inside a triangle defined by the coordinates (0,0), and those in
-#'  "vertex12", and "vertex22", see below (in addition to being constrained to 
+#'  "vertex12", and "vertex22", see below (in addition to being constrained to
 #'  lie inside the region defined by LB2 and UB2).NOTE: use TRUE when the treatments
 #'  form a triangular experimental region in shape. If FALSE, optima will only be
-#'  constrained to lie inside the rectangular region defined by LB2 and UB2. 
+#'  constrained to lie inside the rectangular region defined by LB2 and UB2.
 #'  Default is FALSE.
 #' @param vertex12 2 times 1 vector with coordinates defining one of the
 #'   3 vertices of the triangular region where the second response is being
@@ -59,7 +59,7 @@
 #'                      if FALSE it minimizes it
 #' @param maximization2 logical: if TRUE (default) it maximizes response 2,
 #'                      if FALSE it minimizes it
-#' @param xlab1and2 text label for x axis in both confidence region plots 
+#' @param xlab1and2 text label for x axis in both confidence region plots
 #'                  (default: "Protein eaten (mg)")
 #' @param ylab1and2 text label for y axis in both confidence region plots
 #'                  (default: "Carbohydrates eaten (mg)")
@@ -75,19 +75,19 @@
 #'         with the coordinates of each set of optima are created, and the
 #'         function also returns a list consisting of the following 5 components:
 #'         \describe{
-#'           \item{dist}{vector of distances between pairs of points taken 
+#'           \item{dist}{vector of distances between pairs of points taken
 #'                         from each set of optima}
 #'           \item{mean}{mean of dist}
 #'           \item{median}{median of dist}
 #'           \item{ciMean}{95% confidence interval for the mean of dist using
-#'                           bca bootstrapping; it is a vector with 5 columns, 
-#'                           containing the signicance level, the next two 
+#'                           bca bootstrapping; it is a vector with 5 columns,
+#'                           containing the signicance level, the next two
 #'                           containing the indices of the order statistics used
 #'                           in the calculations and the final two the calculated
 #'                           endpoints of the CI's.}
-#'           \item{ciMEdian}{95% confidence interval for the median of dist 
-#'                             using bca bootstrapping; it is a vector with 5 columns, 
-#'                             containing the signicance level, the next two 
+#'           \item{ciMEdian}{95% confidence interval for the median of dist
+#'                             using bca bootstrapping; it is a vector with 5 columns,
+#'                             containing the signicance level, the next two
 #'                             containing the indices of the order statistics used
 #'                             in the calculations and the final two the calculated
 #'                             endpoints of the CI's.}
@@ -96,7 +96,7 @@
 #' @references{
 #'  \insertAllCited{}
 #' }
-#' @examples 
+#' @examples
 #' \dontrun{
 #' # Example: two randomly generated data sets, quadratic polynomial responses.
 #' X1 <- cbind(runif(100,-2,2),runif(100,-2,2))
@@ -114,8 +114,8 @@ CRcompare <- function(X1, y1, X2, y2, lambda = 0.04, nosim1and2 = 200, alpha = 0
                       LB1, LB2, UB1, UB2,
                       triangularRegion1 = FALSE, vertex11 = NULL, vertex21 = NULL,
                       triangularRegion2 = FALSE, vertex12 = NULL, vertex22 = NULL,
-                      maximization1 = TRUE, maximization2 = TRUE, 
-                      xlab1and2 = "Protein eaten (mg)", 
+                      maximization1 = TRUE, maximization2 = TRUE,
+                      xlab1and2 = "Protein eaten (mg)",
                       ylab1and2 = "Carbohydrates eaten (mg)",
                       outputPDFFile1 = "CR_plot1.pdf", outputOptimaFile1 = "Optima1.txt",
                       outputPDFFile2 = "CR_plot2.pdf", outputOptimaFile2 = "Optima2.txt"){
@@ -126,7 +126,7 @@ CRcompare <- function(X1, y1, X2, y2, lambda = 0.04, nosim1and2 = 200, alpha = 0
   #library("spam", lib.loc=t)
   #library("boot", lib.loc=t)
   #library("OptimaRegion", lib.loc=t)
-  
+
   if(responseType=='TPS'){ #fit TPS models
     # Run OptRegionTps (from package OptimaRegion) twice
     out1<-OptRegionTps(X=X1,y=y1,nosim=nosim1and2,lambda=lambda,alpha=alpha,LB=LB1,UB=UB1,triangularRegion=triangularRegion1,vertex1=vertex11,vertex2=vertex21,maximization=maximization1,xlab=xlab1and2,ylab=ylab1and2,
@@ -141,8 +141,8 @@ CRcompare <- function(X1, y1, X2, y2, lambda = 0.04, nosim1and2 = 200, alpha = 0
     out2<-OptRegionQuad(X=X2,y=y2,nosim=nosim1and2, alpha=alpha,LB=LB2,UB=UB2,triangularRegion=triangularRegion2,vertex1=vertex12,vertex2=vertex22,maximization=maximization2,xlab=xlab1and2,ylab=ylab1and2,
                         outputPDFFile=outputPDFFile2)
   }
-  
-  
+
+
   # Form as many pairs of points as in the smallest set and compute their euclidean distances
   Dmatrix<-spam::nearest.dist(x=out1$xin,y=out2$xin,upper=TRUE,delta=1e20)
   dist<-spam::diag(Dmatrix)

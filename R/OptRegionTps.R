@@ -1,33 +1,33 @@
 #' Computes Confidence Regions of Optima of Thin Plate Spline Models
-#' 
-#' Computes and displays an approximated (1 - alpha) confidence region (CR) for 
-#' the linear-constrained maximum of a penalized Thin Plate Spline (TPS) model 
+#'
+#' Computes and displays an approximated (1 - alpha) confidence region (CR) for
+#' the linear-constrained maximum of a penalized Thin Plate Spline (TPS) model
 #' in 2 controllable factors
 #' \insertCite{DelCastilloCR}{OptimaRegion}.
 #' Generates a PDF file with a graph displaying the CR.
 #' Grey region on output plot is the approximate CR. The mean coordinates (centroid)
 #' of the optima is shown as a red point.
-#' 
+#'
 #' This program approximates the confidence region (CR) of the location of the optimum
 #' of a Thin Plate Spline (TPS) in 2 regressors x constrained inside  a rectangular
 #' region defined by LB and UB. If triangularRegion=TRUE it will also contrain the
 #' optimum to lie inside the experimental region assumed to be well approximated by
 #' a triangle. The CR is generated pointwise by bootstrapping the residuals of a TPS fit
-#' to the given (X,y) data, refitting Tps models, and solving the corresponding 
+#' to the given (X,y) data, refitting Tps models, and solving the corresponding
 #' constrained maximization (or minimization) problems. The confidence region is
-#' approximated by the convex hull of all the optimal solutions found. The CR 
+#' approximated by the convex hull of all the optimal solutions found. The CR
 #' computation is based on the "CS" bootstrapping approach for building a confidence set
 #' of a parametric function described in
 #' \insertCite{WoutersenHam2013;textual}{OptimaRegion}.
 #' This version of the program
-#' uses nonparametric bootstrapping confidence regions to get the Confidence region of 
+#' uses nonparametric bootstrapping confidence regions to get the Confidence region of
 #' the Tps parameters,using the notion of data depth according to
 #' \insertCite{yeh1997balanced;textual}{OptimaRegion}.
 #' Hence, this version does not rely on the normality assumption of the data.
 #' The TPS models are fit using Nychka's "fields" R package and its "Tps" function.
-#' 
+#'
 #' @inheritParams OptRegionQuad
-#' @param lambda penalization parameter (larger values implies more smoothing). 
+#' @param lambda penalization parameter (larger values implies more smoothing).
 #'               Default is 0.04
 #' @param outputOptimaFile name of the text file containing the coordinates of all
 #'        the optima found (same information as in output vector xin, see below)
@@ -40,14 +40,14 @@
 #'                              point (displayed as a red dot in the CR plot in output
 #'                              PDF file)}
 #'           \item{xin}{an mx2 matrix with the x,y coordinates of all simulated
-#'                        points that belong to the confidence region (dim(m) is 
+#'                        points that belong to the confidence region (dim(m) is
 #'                        (1-alpha)*nosim)}
 #'         }
 #' @inheritSection OptRegionQuad Author(s)
 #' @references{
 #'  \insertAllCited{}
 #' }
-#' @examples 
+#' @examples
 #' \dontrun{
 #' # Example 1: randomly generated 2-variable response surface data
 #' X <- cbind(runif(100,-2,2),runif(100,-2,2))
@@ -55,7 +55,7 @@
 #' # Find a 95 percent confidence region for the maximum of a Thin Plate Spline
 #' # model fitted to these data
 #' out <- OptRegionTps(X = X, y = y, nosim = 200, LB = c(-2, -2), UB = c(2, 2), xlab = "X1",ylab = "X2")
-#' 
+#'
 #' # Example 2: a mixture-amount experiment in two components (Drug dataset) with
 #' # non-normal data. Note triangular experimental region. Resulting 95p confidence
 #' # region of the maxima of a TPS model has area > 0. Contrast with region for
@@ -71,14 +71,14 @@
 #' @importFrom stats fitted lm resid vcov
 #' @export
 OptRegionTps <- function(X, y, lambda = 0.04, nosim = 1000,alpha = 0.05, LB, UB,
-                         triangularRegion = FALSE, vertex1 = NULL, vertex2 = NULL, 
-                         maximization = TRUE, 
+                         triangularRegion = FALSE, vertex1 = NULL, vertex2 = NULL,
+                         maximization = TRUE,
                          xlab = "Protein eaten, mg", ylab = "Carbohydrate eaten, mg",
                          outputPDFFile = "CRplot.pdf", outputOptimaFile = "Optima.txt"){
   # Check that X matrix has k=2 factors
   k=dim(X)[2]
   if((k>2)|(k<2)) stop('Error. Number of factors must equal to 2')
-  
+
   # If experimental region was specified as triangular, compute the parameteres defining the 3 lines that approximate its shape.
   if(triangularRegion){
     x11p<-vertex1[1] #user defined vertices; vertex 1 and 2 are clockwise on the plane; third vertex is (0,0)
@@ -95,7 +95,7 @@ OptRegionTps <- function(X, y, lambda = 0.04, nosim = 1000,alpha = 0.05, LB, UB,
     m3<-0
     bintercept<-0
   }
-  
+
   # Load some libraries
   #t<-.libPaths()
   #library("nloptr", lib.loc=t)
@@ -104,16 +104,16 @@ OptRegionTps <- function(X, y, lambda = 0.04, nosim = 1000,alpha = 0.05, LB, UB,
   #library("DepthProc",lib.loc=t) #better package than "depth"
   #library("scatterplot3d",lib.loc=t)
   #library("MASS",lib.loc=t)
-  
+
   #First eliminate replicates and compute y-averages
   model<-fields::Tps(X,y,lambda=lambda)
   out<-fields::Krig.replicates(model)
   X<-out$xM
   y<-out$yM
-  
+
   #Find parameters and covariance matrix of the fitted Thin Plate Spline (TPS) model
   model<-fields::Tps(X,y,lambda=lambda)
-  
+
   fit<-model$fitted.values
   nn<-length(y)
   p<-3  #true for 2-dimensional TPS's
@@ -225,7 +225,7 @@ OptRegionTps <- function(X, y, lambda = 0.04, nosim = 1000,alpha = 0.05, LB, UB,
     xin[m,]<-bestSol
     print(c(m,best,xin[m,],bestStatus))
   }#endfor m
-  
+
   # Plot CR and thin plate spline fit to the experimental data on output file
   pdf(file=outputPDFFile, 5.5,5.5) # comment out to have output to screen
   #x11() # uncomment to have output to screen

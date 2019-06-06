@@ -15,7 +15,7 @@ CRcompare(X1, y1, X2, y2, lambda = 0.04, nosim1and2 = 200,
 }
 \arguments{
 \item{X1}{nx2 matrix with the values of the 2 regressors (experimental factors)
-corresponding to the first response. Note: can have replicates. They 
+corresponding to the first response. Note: can have replicates. They
 will be eliminated by the program and the corresponding y-values averaged}
 
 \item{y1}{nx1 vector of values for the first response corresponding to X1}
@@ -48,10 +48,10 @@ is sought for the second response}
 
 \item{triangularRegion1}{logical: if TRUE it will constrain the maximum points of
 response 1 to lie inside a triangle defined by the coordinates (0,0), and those in
-"vertex11", and "vertex21", see below (in addition to being constrained to 
+"vertex11", and "vertex21", see below (in addition to being constrained to
 lie inside the region defined by LB1 and UB1). NOTE: use TRUE when the treatments
-form a triangular experimental region in shape. If FALSE, optima will only be 
-constrained to lie inside the rectangular region defined by LB1 and UB1. 
+form a triangular experimental region in shape. If FALSE, optima will only be
+constrained to lie inside the rectangular region defined by LB1 and UB1.
 Default is FALSE.}
 
 \item{vertex11}{2 times 1 vector with coordinates defining one of the
@@ -65,10 +65,10 @@ optimized. Must be provided if triangularRegion1 is TRUE}
 
 \item{triangularRegion2}{logical: if TRUE it will constrain the maximum points of
 response 2 to lie inside a triangle defined by the coordinates (0,0), and those in
-"vertex12", and "vertex22", see below (in addition to being constrained to 
+"vertex12", and "vertex22", see below (in addition to being constrained to
 lie inside the region defined by LB2 and UB2).NOTE: use TRUE when the treatments
 form a triangular experimental region in shape. If FALSE, optima will only be
-constrained to lie inside the rectangular region defined by LB2 and UB2. 
+constrained to lie inside the rectangular region defined by LB2 and UB2.
 Default is FALSE.}
 
 \item{vertex12}{2 times 1 vector with coordinates defining one of the
@@ -86,7 +86,7 @@ if FALSE it minimizes it}
 \item{maximization2}{logical: if TRUE (default) it maximizes response 2,
 if FALSE it minimizes it}
 
-\item{xlab1and2}{text label for x axis in both confidence region plots 
+\item{xlab1and2}{text label for x axis in both confidence region plots
 (default: "Protein eaten (mg)")}
 
 \item{ylab1and2}{text label for y axis in both confidence region plots
@@ -109,19 +109,19 @@ Upon completion, two PDF files with the CR plots and two text files
         with the coordinates of each set of optima are created, and the
         function also returns a list consisting of the following 5 components:
         \describe{
-          \item{dist}{vector of distances between pairs of points taken 
+          \item{dist}{vector of distances between pairs of points taken
                         from each set of optima}
           \item{mean}{mean of dist}
           \item{median}{median of dist}
           \item{ciMean}{95% confidence interval for the mean of dist using
-                          bca bootstrapping; it is a vector with 5 columns, 
-                          containing the signicance level, the next two 
+                          bca bootstrapping; it is a vector with 5 columns,
+                          containing the signicance level, the next two
                           containing the indices of the order statistics used
                           in the calculations and the final two the calculated
                           endpoints of the CI's.}
-          \item{ciMEdian}{95% confidence interval for the median of dist 
-                            using bca bootstrapping; it is a vector with 5 columns, 
-                            containing the signicance level, the next two 
+          \item{ciMEdian}{95% confidence interval for the median of dist
+                            using bca bootstrapping; it is a vector with 5 columns,
+                            containing the signicance level, the next two
                             containing the indices of the order statistics used
                             in the calculations and the final two the calculated
                             endpoints of the CI's.}
@@ -131,13 +131,13 @@ Upon completion, two PDF files with the CR plots and two text files
 Computes distribution-free bootstrapped confidence intervals on the mean and median
 distance between the optima of two different responses
 \insertCite{DelCastilloCR}{OptimaRegion}.
-Requires program 
+Requires program
 OptimumRegionTps.R to compute confidence regions on the optima of each response.
 }
 \section{Author(s)}{
 
 Enrique del Castillo \email{exd13@psu.edu},
-Peng Chen \email{pfc5098@psu.edu}, 
+Peng Chen \email{pfc5098@psu.edu},
 Adam Meyers \email{akm5733@psu.edu},
 John Hunt \email{J.Hunt@exeter.ac.uk} and
 James Rapkin \email{jr297@exeter.ac.uk}.

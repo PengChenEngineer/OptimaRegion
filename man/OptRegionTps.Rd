@@ -11,15 +11,15 @@ OptRegionTps(X, y, lambda = 0.04, nosim = 1000, alpha = 0.05, LB, UB,
   outputOptimaFile = "Optima.txt")
 }
 \arguments{
-\item{X}{nx2 matrix with the values of the 2 regressors (experimental factors) 
-in the n observations. Note: this can have replicates. 
-They will be eliminated by the program and the corresponding 
+\item{X}{nx2 matrix with the values of the 2 regressors (experimental factors)
+in the n observations. Note: this can have replicates.
+They will be eliminated by the program and the corresponding
 y-values averaged}
 
-\item{y}{nx1 vector of response value observations, in the same order corresponding 
+\item{y}{nx1 vector of response value observations, in the same order corresponding
 to the rows of X}
 
-\item{lambda}{penalization parameter (larger values implies more smoothing). 
+\item{lambda}{penalization parameter (larger values implies more smoothing).
 Default is 0.04}
 
 \item{nosim}{number of simulations (default = 200)}
@@ -30,13 +30,13 @@ Default is 0.04}
 
 \item{UB}{vector of upper bounds for x (2x1 vector) below which the maximum is sought}
 
-\item{triangularRegion}{logical: if TRUE it will constrain the maximum points to lie 
+\item{triangularRegion}{logical: if TRUE it will constrain the maximum points to lie
 inside a triangle defined by the coordinates (0,0), and those
-in 'vertex1', and 'vertex2', see below (in addition to being 
-constrained to lie inside the region defined by LB and UB). 
-NOTE: use TRUE when the treatments form a triangular 
+in 'vertex1', and 'vertex2', see below (in addition to being
+constrained to lie inside the region defined by LB and UB).
+NOTE: use TRUE when the treatments form a triangular
 experimental region in shape. If FALSE, maxima will only be
-constrained to lie inside the rectangular region defined by 
+constrained to lie inside the rectangular region defined by
 LB and UB. Default is FALSE.}
 
 \item{vertex1}{2 times 1 vector with coordinates defining one of the 3 vertices of
@@ -49,13 +49,13 @@ if triangularRegion is TRUE (NOTE: vertices numbered clockwise)}
 
 \item{maximization}{logical: if TRUE (default) it maximizes it FALSE it minimizes}
 
-\item{xlab}{text label for x axis in confidence region plot 
+\item{xlab}{text label for x axis in confidence region plot
 (default: "Protein eaten (mg)")}
 
-\item{ylab}{text label for y axis in confidence region plot 
+\item{ylab}{text label for y axis in confidence region plot
 (default: "Carbohydrates eaten (mg)")}
 
-\item{outputPDFFile}{name of the PDF file where the CR plot is saved 
+\item{outputPDFFile}{name of the PDF file where the CR plot is saved
 (default: "CR_plot.pdf")}
 
 \item{outputOptimaFile}{name of the text file containing the coordinates of all
@@ -71,13 +71,13 @@ Upon completion, a PDF file containing the CR plot with name as set in
                              point (displayed as a red dot in the CR plot in output
                              PDF file)}
           \item{xin}{an mx2 matrix with the x,y coordinates of all simulated
-                       points that belong to the confidence region (dim(m) is 
+                       points that belong to the confidence region (dim(m) is
                        (1-alpha)*nosim)}
         }
 }
 \description{
-Computes and displays an approximated (1 - alpha) confidence region (CR) for 
-the linear-constrained maximum of a penalized Thin Plate Spline (TPS) model 
+Computes and displays an approximated (1 - alpha) confidence region (CR) for
+the linear-constrained maximum of a penalized Thin Plate Spline (TPS) model
 in 2 controllable factors
 \insertCite{DelCastilloCR}{OptimaRegion}.
 Generates a PDF file with a graph displaying the CR.
@@ -90,14 +90,14 @@ of a Thin Plate Spline (TPS) in 2 regressors x constrained inside  a rectangular
 region defined by LB and UB. If triangularRegion=TRUE it will also contrain the
 optimum to lie inside the experimental region assumed to be well approximated by
 a triangle. The CR is generated pointwise by bootstrapping the residuals of a TPS fit
-to the given (X,y) data, refitting Tps models, and solving the corresponding 
+to the given (X,y) data, refitting Tps models, and solving the corresponding
 constrained maximization (or minimization) problems. The confidence region is
-approximated by the convex hull of all the optimal solutions found. The CR 
+approximated by the convex hull of all the optimal solutions found. The CR
 computation is based on the "CS" bootstrapping approach for building a confidence set
 of a parametric function described in
 \insertCite{WoutersenHam2013;textual}{OptimaRegion}.
 This version of the program
-uses nonparametric bootstrapping confidence regions to get the Confidence region of 
+uses nonparametric bootstrapping confidence regions to get the Confidence region of
 the Tps parameters,using the notion of data depth according to
 \insertCite{yeh1997balanced;textual}{OptimaRegion}.
 Hence, this version does not rely on the normality assumption of the data.
@@ -106,7 +106,7 @@ The TPS models are fit using Nychka's "fields" R package and its "Tps" function.
 \section{Author(s)}{
 
 Enrique del Castillo \email{exd13@psu.edu},
-Peng Chen \email{pfc5098@psu.edu}, 
+Peng Chen \email{pfc5098@psu.edu},
 Adam Meyers \email{akm5733@psu.edu},
 John Hunt \email{J.Hunt@exeter.ac.uk} and
 James Rapkin \email{jr297@exeter.ac.uk}.

@@ -22,7 +22,7 @@ with bound constraints
 \section{Author(s)}{
 
 Enrique del Castillo \email{exd13@psu.edu},
-Peng Chen \email{pfc5098@psu.edu}, 
+Peng Chen \email{pfc5098@psu.edu},
 Adam Meyers \email{akm5733@psu.edu},
 John Hunt \email{J.Hunt@exeter.ac.uk} and
 James Rapkin \email{jr297@exeter.ac.uk}.
