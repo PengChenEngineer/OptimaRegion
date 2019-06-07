@@ -1,10 +1,17 @@
-#' Compute confidence intervals on distance between two response optima
+#' Computes bootstrapped confidence intervals for the distance between two
+#' response surface optima
 #'
-#' Computes distribution-free bootstrapped confidence intervals on the mean and median
-#' distance between the optima of two different responses
+#' Computes bootstrapped confidence intervals for the mean and median
+#' distance between the optima of two response surface models. Models can be thin
+#' plate splines or quadratic polynomials
 #' \insertCite{DelCastilloCR}{OptimaRegion}.
-#' Requires program
-#' OptimumRegionTps.R to compute confidence regions on the optima of each response.
+#' 
+#' Computes distribution-free bootstrapped confidence intervals on the mean and
+#' median distance between the optima of two different responses. The responses can
+#' be Thin Plate Spline models or Quadratic polynomial models. Program calls
+#' each response, next computes all pairwise distances between points in each CR,
+#' and finally bootstraps the distances to compute bca bootstrapped confidence
+#' intervals for the mean and median distance.
 #'
 #' @param X1 nx2 matrix with the values of the 2 regressors (experimental factors)
 #'           corresponding to the first response. Note: can have replicates. They
@@ -14,8 +21,9 @@
 #'           corresponding to the second response. Note: can have replicates. They
 #'           will be eliminated by the program and the corresponding y-values averaged
 #' @param y2 nx1 vector of values for the second response corresponding to X2
-#' @param lambda penalization parameter (larger implies more smoothing) used to fit the
-#'               Tps model to both data sets
+#' @param lambda psmoothing penalty if a TPS model is selected (default=0.04)
+#' @param responseType use 'TPS' if fitting thin plate spline responses, 'Quad'
+#'                     if fitting quadratic polynomials
 #' @param nosim1and2 number of simulations(default = 200) used to find each of the two
 #'                   confidence regions of optima
 #' @param alpha confidence level (0 < alpha < 1; default = 0.05)
@@ -110,7 +118,8 @@
 #' }
 #' @importFrom stats median
 #' @export
-CRcompare <- function(X1, y1, X2, y2, lambda = 0.04, nosim1and2 = 200, alpha = 0.05,
+CRcompare <- function(X1, y1, X2, y2, responseType = 'TPS',
+                      lambda = 0.04, nosim1and2 = 200, alpha = 0.05,
                       LB1, LB2, UB1, UB2,
                       triangularRegion1 = FALSE, vertex11 = NULL, vertex21 = NULL,
                       triangularRegion2 = FALSE, vertex12 = NULL, vertex22 = NULL,
@@ -119,7 +128,6 @@ CRcompare <- function(X1, y1, X2, y2, lambda = 0.04, nosim1and2 = 200, alpha = 0
                       ylab1and2 = "Carbohydrates eaten (mg)",
                       outputPDFFile1 = "CR_plot1.pdf", outputOptimaFile1 = "Optima1.txt",
                       outputPDFFile2 = "CR_plot2.pdf", outputOptimaFile2 = "Optima2.txt"){
-  responseType = 'TPS'
 
   # Load required libraries
   #t<-.libPaths()

@@ -2,13 +2,15 @@
 % Please edit documentation in R/CRcompare.R
 \name{CRcompare}
 \alias{CRcompare}
-\title{Compute confidence intervals on distance between two response optima}
+\title{Computes bootstrapped confidence intervals for the distance between two
+response surface optima}
 \usage{
-CRcompare(X1, y1, X2, y2, lambda = 0.04, nosim1and2 = 200,
-  alpha = 0.05, LB1, LB2, UB1, UB2, triangularRegion1 = FALSE,
-  vertex11 = NULL, vertex21 = NULL, triangularRegion2 = FALSE,
-  vertex12 = NULL, vertex22 = NULL, maximization1 = TRUE,
-  maximization2 = TRUE, xlab1and2 = "Protein eaten (mg)",
+CRcompare(X1, y1, X2, y2, responseType = "TPS", lambda = 0.04,
+  nosim1and2 = 200, alpha = 0.05, LB1, LB2, UB1, UB2,
+  triangularRegion1 = FALSE, vertex11 = NULL, vertex21 = NULL,
+  triangularRegion2 = FALSE, vertex12 = NULL, vertex22 = NULL,
+  maximization1 = TRUE, maximization2 = TRUE,
+  xlab1and2 = "Protein eaten (mg)",
   ylab1and2 = "Carbohydrates eaten (mg)",
   outputPDFFile1 = "CR_plot1.pdf", outputOptimaFile1 = "Optima1.txt",
   outputPDFFile2 = "CR_plot2.pdf", outputOptimaFile2 = "Optima2.txt")
@@ -26,8 +28,10 @@ will be eliminated by the program and the corresponding y-values averaged}
 
 \item{y2}{nx1 vector of values for the second response corresponding to X2}
 
-\item{lambda}{penalization parameter (larger implies more smoothing) used to fit the
-Tps model to both data sets}
+\item{responseType}{use 'TPS' if fitting thin plate spline responses, 'Quad'
+if fitting quadratic polynomials}
+
+\item{lambda}{psmoothing penalty if a TPS model is selected (default=0.04)}
 
 \item{nosim1and2}{number of simulations(default = 200) used to find each of the two
 confidence regions of optima}
@@ -128,11 +132,18 @@ Upon completion, two PDF files with the CR plots and two text files
         }
 }
 \description{
-Computes distribution-free bootstrapped confidence intervals on the mean and median
-distance between the optima of two different responses
+Computes bootstrapped confidence intervals for the mean and median
+distance between the optima of two response surface models. Models can be thin
+plate splines or quadratic polynomials
 \insertCite{DelCastilloCR}{OptimaRegion}.
-Requires program
-OptimumRegionTps.R to compute confidence regions on the optima of each response.
+}
+\details{
+Computes distribution-free bootstrapped confidence intervals on the mean and
+median distance between the optima of two different responses. The responses can
+be Thin Plate Spline models or Quadratic polynomial models. Program calls
+each response, next computes all pairwise distances between points in each CR,
+and finally bootstraps the distances to compute bca bootstrapped confidence
+intervals for the mean and median distance.
 }
 \section{Author(s)}{
 
