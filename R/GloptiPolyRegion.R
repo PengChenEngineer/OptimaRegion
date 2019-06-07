@@ -26,10 +26,10 @@
 #'         returns a list consisting of 2 components: 
 #'         \describe{
 #'           \item{boot_optima}{numeric matrix of shape ((1 - alpha)B, k);
-#'                                it contains the (1 - alpha)B bootstrap optima}
-#'           \item{boost_optimum}{numeric vector of shape (1, k); the boosted 
-#'                                  optimum; computed by taking the column average
-#'                                  of boot_optima}
+#'                              it contains the (1 - alpha)B bootstrap optima}
+#'           \item{bagged_optimum}{numeric vector of shape (1, k); the bagged 
+#'                                 optimum; computed by taking the column average
+#'                                 of boot_optima}
 #'         }
 #' @inheritSection OptRegionQuad Author(s)
 #' @references{
@@ -147,12 +147,12 @@ GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
   if(verbose) print("Optimizing over bootstrapped models that remains...")
   boot_optima <- boot_optima[indices, ]
   if(scale) boot_optima <- decode_orthogonal(boot_optima, lb, ub)
-  boost_optimum <- apply(boot_optima, 2, mean)
+  bagged_optimum <- apply(boot_optima, 2, mean)
   # plotting ----------------------------------------------------------------
   if(plot_CR){
     if(verbose) print("Ploting the confidence region ... ")
-    draw_2D_CRs(boot_optima, boost_optimum, lb, ub)
+    draw_2D_CRs(boot_optima, bagged_optimum, lb, ub)
   }
   # return ------------------------------------------------------------------
-  list(boot_optima = boot_optima, boost_optimum = boost_optimum)
+  list(boot_optima = boot_optima, bagged_optimum = bagged_optimum)
 }

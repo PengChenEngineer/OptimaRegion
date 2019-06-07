@@ -39,10 +39,10 @@ Upon completion, a figure displaying the confidence region of the true optimum
         returns a list consisting of 2 components: 
         \describe{
           \item{boot_optima}{numeric matrix of shape ((1 - alpha)B, k);
-                               it contains the (1 - alpha)B bootstrap optima}
-          \item{boost_optimum}{numeric vector of shape (1, k); the boosted 
-                                 optimum; computed by taking the column average
-                                 of boot_optima}
+                             it contains the (1 - alpha)B bootstrap optima}
+          \item{bagged_optimum}{numeric vector of shape (1, k); the bagged 
+                                optimum; computed by taking the column average
+                                of boot_optima}
         }
 }
 \description{
