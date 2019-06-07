@@ -2,7 +2,7 @@
 
 Compute the confidence region on the optima of a response surface model
 
-Contributors: Enrique del Castillo, John Hunt, and James Rapkin, Peng Chen, Adam Meyers
+Contributors: Enrique del Castillo, Peng Chen, Adam Meyers, John Hunt, and James Rapkin
 
 ## Note
 - rcmdcheck::rcmdcheck(build_args = c('--compact-vignettes=gs+qpdf'))
