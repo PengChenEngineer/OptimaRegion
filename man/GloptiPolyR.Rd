@@ -19,6 +19,10 @@ Optimize a quadratic or cubic polynomial functionin 2 ~ 5 variables
 with bound constraints
 \insertCite{DelCastilloCR}{OptimaRegion}.
 }
+\details{
+GloptipolyR is an R implementation of the “Gloptipoly” algorithm 
+\insertCite{lasserre2001global}{OptimaRegion}
+}
 \section{Author(s)}{
 
 Enrique del Castillo \email{exd13@psu.edu},

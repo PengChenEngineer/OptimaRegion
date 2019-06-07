@@ -4,6 +4,9 @@
 #' with bound constraints
 #' \insertCite{DelCastilloCR}{OptimaRegion}.
 #' 
+#' GloptipolyR is an R implementation of the “Gloptipoly” algorithm 
+#' \insertCite{lasserre2001global}{OptimaRegion}
+#' 
 #' @param P A list of list; Each sub-list has 2 components: 
 #' 1. a multi-dimensional array corresponding to a objective or constraint function
 #' 2. an attribute of the objective or constraint function
