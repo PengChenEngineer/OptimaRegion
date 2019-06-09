@@ -1,20 +1,19 @@
-#' Draw a 2D plot for the optima confidence region
-#' 
-#' @param boot_optima numeric matrix of shape ((1 - alpha)B, 2); it contains the
-#'                    (1 - alpha)B bootstrap optima projected onto a 2D plane
-#' @param boost_optimum numeric vector of shape (1, 2); the bootsted optimum
-#'                      computed by taking the column average of boot_optima
-#' @param xlab string; it specifies the lable of the horizontal axis
-#' @param ylab string; it specifies the lable of the vertical axis
-#' @param xlim numeric vector of shape (1, 2); it specifies the lower and upper 
-#'             limits of the horizontal axis
-#' @param ylim numeric vector of shape (1, 2); it specifies the lower and upper 
-#'             limits of the vertical axis
-#' @param main string; it specifies the title of the output figure
-#' @return a figure displaying the confidence region of the true optimum,
-#'         along with the boostrap optima and the boosted optimum,
-#'         projected onto a 2D plane
-#' @keywords internal
+# Draw a 2D plot for the optima confidence region
+# 
+# @param boot_optima numeric matrix of shape ((1 - alpha)B, 2); it contains the
+#                    (1 - alpha)B bootstrap optima projected onto a 2D plane
+# @param boost_optimum numeric vector of shape (1, 2); the bootsted optimum
+#                      computed by taking the column average of boot_optima
+# @param xlab string; it specifies the lable of the horizontal axis
+# @param ylab string; it specifies the lable of the vertical axis
+# @param xlim numeric vector of shape (1, 2); it specifies the lower and upper 
+#             limits of the horizontal axis
+# @param ylim numeric vector of shape (1, 2); it specifies the lower and upper 
+#             limits of the vertical axis
+# @param main string; it specifies the title of the output figure
+# @return a figure displaying the confidence region of the true optimum,
+#         along with the boostrap optima and the boosted optimum,
+#         projected onto a 2D plane
 draw_2D_CR <- function(boot_optima, boost_optimum,
                        xlab, ylab, xlim, ylim, main){
   # get the indices of the points that are on the boundary of the convex hull
@@ -46,14 +45,13 @@ draw_2D_CR <- function(boot_optima, boost_optimum,
   # plot the boosted optimum
   points(boost_optimum[1], boost_optimum[2], col = "red", cex = 1, pch = 16)
 }
-#' Draw pair-wise projected 2D plots for the optima confidence region
-#' 
-#' @inheritParams draw_2D_CR
-#' @inheritParams GloptiPolyRegion
-#' @return a figure displaying the confidence region of the true optimum,
-#'         projected onto each pairwise-variable planes
+# Draw pair-wise projected 2D plots for the optima confidence region
+# 
+# @inheritParams draw_2D_CR
+# @inheritParams GloptiPolyRegion
+# @return a figure displaying the confidence region of the true optimum,
+#         projected onto each pairwise-variable planes
 #' @importFrom graphics plot.new
-#' @keywords internal
 draw_2D_CRs <- function(boot_optima, boost_optimum, lb, ub){
   k = ncol(boot_optima); par(mfrow = c(k - 1, k - 1))
   for(i in 1:(k - 1)){ # each row of the sub-figures

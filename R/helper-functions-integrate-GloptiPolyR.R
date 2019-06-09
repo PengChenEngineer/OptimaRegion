@@ -1,16 +1,15 @@
-#' Fit polynomial models
-#' 
-#' Formulas are entered via the polym function.
-#' Polym automatically formulates the full polynomial basis given its degree
-#' and names coefficients with 0/1 indicators, e.g. the name for term 
-#' x1*x2^2 in a 3 variables model is "1.2.0".
-#' This naming pattern can be used to position the coefficients in the 
-#' multi-dimentional arrays for the GloptiPolyR solver, with the help of 
-#' string-manipulation using regular expression
-#' 
-#' @inheritParams GloptiPolyRegion
-#' @return an object of class "lm"
-#' @keywords internal
+# Fit polynomial models
+#
+# Formulas are entered via the polym function.
+# Polym automatically formulates the full polynomial basis given its degree
+# and names coefficients with 0/1 indicators, e.g. the name for term
+# x1*x2^2 in a 3 variables model is "1.2.0".
+# This naming pattern can be used to position the coefficients in the
+# multi-dimentional arrays for the GloptiPolyR solver, with the help of
+# string-manipulation using regular expression
+# 
+# @inheritParams GloptiPolyRegion
+# @return an object of class "lm"
 fit_polym <- function(X, y, degree){
   data <- data.frame(X, y)
   if(ncol(X) == 2){
@@ -31,19 +30,18 @@ fit_polym <- function(X, y, degree){
   # return
   model
 }
-#' Get positions for monomial coefficients
-#' 
-#' @param coefficients_name string vector of shape (1, p); it specifies the  
-#'                     coefficient names following the polym pattern, e.g.,   
-#'                     the name for x1*x2^2 in a 3-variable model is "1.2.0"
-#' @param k integer scalor; it specifies the number of variables
-#' @return integer matrix of shape (p, k); its (i, j) element speficies the
-#'         (power + 1) value of the jth variable in the ith monomial term,
-#'         (power + 1) accommodating the zero power; its ith row specifies
-#'         the position of the coefficient of the ith nomomial term in the 
-#'         multi-dimensional array of the GloptiPolyR solver
+# Get positions for monomial coefficients
+# 
+# @param coefficients_name string vector of shape (1, p); it specifies the  
+#                     coefficient names following the polym pattern, e.g.,   
+#                     the name for x1*x2^2 in a 3-variable model is "1.2.0"
+# @param k integer scalor; it specifies the number of variables
+# @return integer matrix of shape (p, k); its (i, j) element speficies the
+#         (power + 1) value of the jth variable in the ith monomial term,
+#         (power + 1) accommodating the zero power; its ith row specifies
+#         the position of the coefficient of the ith nomomial term in the 
+#         multi-dimensional array of the GloptiPolyR solver
 #' @importFrom magrittr "%>%"
-#' @keywords internal
 coef_name_to_array_index <- function(coefficients_name, k){
   array_index_string <- stringr::str_extract(coefficients_name, "(\\d\\.)+[\\d]")
   array_index_number <- matrix(NA, length(array_index_string), k)
@@ -57,15 +55,14 @@ coef_name_to_array_index <- function(coefficients_name, k){
   # return
   array_index_number
 }
-#' Optimize fitted polynomial functions via GloptiPolyR
-#' 
-#' @param coefficients numeric vector of shape (1, p); it specifies the the 
-#'                     coefficients of an "lm" objected formulated with the 
-#'                     polym function
-#' @param k integer scalor; it specifies the number of variables
-#' @inheritParams GloptiPolyRegion
-#' @return the optimal solution and its corresponding objective value
-#' @keywords internal
+# Optimize fitted polynomial functions via GloptiPolyR
+# 
+# @param coefficients numeric vector of shape (1, p); it specifies the the 
+#                     coefficients of an "lm" objected formulated with the 
+#                     polym function
+# @param k integer scalor; it specifies the number of variables
+# @inheritParams GloptiPolyRegion
+# @return the optimal solution and its corresponding objective value
 Gloptipolym <- function(coefficients, k, degree, lb, ub, maximization){
   Ps <- list() # argument for GloptiPolyR, a list of lists
   # Objective function ------------------------------------------------------
