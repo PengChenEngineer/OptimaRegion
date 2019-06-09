@@ -13,7 +13,7 @@ Contributors: Enrique del Castillo, Peng Chen, Adam Meyers, John Hunt, and James
 - [ ] Make arguments' names consistent between old and new functions
 - [ ] Change xlab and ylab for old functions?
 
-### 3D View
+### 3D View for Box Draper Example
 ```r
 # define subroutines to draw 3D confidence reigon
 library(rgl)
