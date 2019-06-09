@@ -14,6 +14,7 @@ Contributors: Enrique del Castillo, Peng Chen, Adam Meyers, John Hunt, and James
 - [ ] Change xlab and ylab for old functions?
 
 ### 3D View
+```r
 #' # define subroutines to draw 3D confidence reigon
 #' library(rgl)
 #' plot_3D_CR_demo <- function(X){
@@ -46,3 +47,4 @@ Contributors: Enrique del Castillo, Peng Chen, Adam Meyers, John Hunt, and James
 #'  
 #' # draw 3D confidence region based on out
 #' plot_3D_CR_demo(out$boot_optima)
+```r
