@@ -46,4 +46,4 @@ plot_3D_CR_demo <- function(X){
  } 
 # draw 3D confidence region based on out
 plot_3D_CR_demo(out$boot_optima)
-```r
+```
