@@ -33,28 +33,19 @@ James Rapkin \email{jr297@exeter.ac.uk}.
 }
 
 \examples{
-# Consider the following quadratic function in 3 variables
+# Optimize the following quadratic function in 3 variables
 # f(x) = -1.5 x_1 + 2.13 x_2 - 1.81 x_3 + 7.13 x_1 x_2 + 
 #        3.27 x_1 x_3  + 2.73 x_2 x_3 + 
 #        4.69 x_1^2 + 6.27 x_2^2 + 5.21 x_3^2.
-# The minimum of f(x) over the region {-2 <= x_i <= 2, i = 1, 2, 3} 
-# is x^* = (0.46, -0.46, 0.15).
 
-# For this problem, the input for GloptiPolyR is a list of 7 sub-lists,
+# The input for GloptiPolyR is a list of 7 sub-lists,
 # each of which corresponds to the objective function or a constraint 
-# function, respectively.
+# function, respectively. See del Castillo et al. (2019) for details.
 P <- list()
 p_f <- list()
 p_g_1 <- list(); p_g_2 <- list(); p_g_3 <- list()
 p_g_4 <- list(); p_g_5 <- list(); p_g_6 <- list()
 
-# Each of these 7 sub-lists has two elements: (1) a multi-dimensional 
-# array, denoted by 'c', and (2) an attribute, denoted by 't'.
-
-# The multi-dimensional array is generated from the monomial coefficients
-# of the corresponding polynomial function. The rule is to put the 
-# coefficient of the x_1^i x_2^j x_3^k term in the [ i+ 1, j + 1, k + 1] 
-# position of the array, and place zeroes in other positions.
 p_f$c <- array(0, dim = c(3, 3, 3))
 p_f$c[2, 1, 1] <- -1.5; p_f$c[1, 2, 1] <- 2.13; p_f$c[1, 1, 2] <- -1.81
 p_f$c[2, 2, 1] <- 7.13; p_f$c[2, 1, 2] <- 3.27; p_f$c[1, 2, 2] <- 2.73
