@@ -28,3 +28,4 @@ This naming pattern can be used to position the coefficients in the
 multi-dimentional arrays for the GloptiPolyR solver, with the help of 
 string-manipulation using regular expression
 }
+\keyword{internal}

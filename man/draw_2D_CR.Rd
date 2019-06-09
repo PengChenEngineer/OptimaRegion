@@ -33,3 +33,4 @@ a figure displaying the confidence region of the true optimum,
 \description{
 Draw a 2D plot for the optima confidence region
 }
+\keyword{internal}

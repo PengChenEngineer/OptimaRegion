@@ -23,3 +23,4 @@ numeric matrix of shape (N, k); res specifies the points in
 \description{
 Decode using the orthogonal convention
 }
+\keyword{internal}

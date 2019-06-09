@@ -23,3 +23,4 @@ numeric matrix of shape (N, k); it specifies the points in the
 \description{
 Encode using the orthogonal convention
 }
+\keyword{internal}

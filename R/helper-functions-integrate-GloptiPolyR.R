@@ -10,6 +10,7 @@
 #' 
 #' @inheritParams GloptiPolyRegion
 #' @return an object of class "lm"
+#' @keywords internal
 fit_polym <- function(X, y, degree){
   data <- data.frame(X, y)
   if(ncol(X) == 2){
@@ -42,6 +43,7 @@ fit_polym <- function(X, y, degree){
 #'         the position of the coefficient of the ith nomomial term in the 
 #'         multi-dimensional array of the GloptiPolyR solver
 #' @importFrom magrittr "%>%"
+#' @keywords internal
 coef_name_to_array_index <- function(coefficients_name, k){
   array_index_string <- stringr::str_extract(coefficients_name, "(\\d\\.)+[\\d]")
   array_index_number <- matrix(NA, length(array_index_string), k)
@@ -63,6 +65,7 @@ coef_name_to_array_index <- function(coefficients_name, k){
 #' @param k integer scalor; it specifies the number of variables
 #' @inheritParams GloptiPolyRegion
 #' @return the optimal solution and its corresponding objective value
+#' @keywords internal
 Gloptipolym <- function(coefficients, k, degree, lb, ub, maximization){
   Ps <- list() # argument for GloptiPolyR, a list of lists
   # Objective function ------------------------------------------------------

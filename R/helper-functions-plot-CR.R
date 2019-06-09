@@ -14,6 +14,7 @@
 #' @return a figure displaying the confidence region of the true optimum,
 #'         along with the boostrap optima and the boosted optimum,
 #'         projected onto a 2D plane
+#' @keywords internal
 draw_2D_CR <- function(boot_optima, boost_optimum,
                        xlab, ylab, xlim, ylim, main){
   # get the indices of the points that are on the boundary of the convex hull
@@ -52,6 +53,7 @@ draw_2D_CR <- function(boot_optima, boost_optimum,
 #' @return a figure displaying the confidence region of the true optimum,
 #'         projected onto each pairwise-variable planes
 #' @importFrom graphics plot.new
+#' @keywords internal
 draw_2D_CRs <- function(boot_optima, boost_optimum, lb, ub){
   k = ncol(boot_optima); par(mfrow = c(k - 1, k - 1))
   for(i in 1:(k - 1)){ # each row of the sub-figures

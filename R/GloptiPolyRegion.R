@@ -21,9 +21,11 @@
 #' @param maximization boolean scalor; if specifies whether the algorithm 
 #'                     computes the confidence region for the maxima or minima
 #' @param verbose boolean scalor; it specifies whether to display running status
+#' @inheritParams OptRegionQuad
 #' @return Upon completion, a figure displaying the confidence region of the true optimum
-#'         projected onto each pairwise-variable planes will be created, and the function also 
-#'         returns a list consisting of 2 components: 
+#'         projected onto each pairwise-variable planes will be created (a pdf file will 
+#'         also be generated), and the function also returns a list consisting of 
+#'         2 components: 
 #'         \describe{
 #'           \item{boot_optima}{numeric matrix of shape ((1 - alpha)B, k);
 #'                              it contains the (1 - alpha)B bootstrap optima}
@@ -41,53 +43,23 @@
 #' # Example 1: run GloptiPolyRegion on a quadratic, 3 vars example
 #' out <- GloptiPolyRegion(X = quad_3D[, 1:3], y = quad_3D[, 4], degree = 2, 
 #'                         lb = c(-2, -2, -2), ub = c(2, 2, 2), B = 2000, alpha = 0.1, 
-#'                         maximization = TRUE, verbose = TRUE)
+#'                         maximization = TRUE,
+#'                         outputPDFFile = "CR_quad_3D.pdf", verbose = TRUE)
 #' # check result
 #' str(out)
-#' 
-#' # define subroutines to draw 3D confidence reigon
-#' library(rgl)
-#' plot_3D_CR_demo <- function(X){
-#'   plot3d(X, col = "green",
-#'          type = "p", size = 5, alpha = 0.01,
-#'          xlab = "x1", ylab = "x2", zlab = "x3",
-#'          xlim = c(-2, 2), ylim = c(-2, 2), zlim = c(-2, 2))
-#'   crownhull(X, col = "green", alpha = 0.2)
-#'   points3d(X, add = TRUE, col = "green",
-#'            size = 2, alpha = 0.5)
-#'   X_ave <- apply(X, 2, mean)
-#'   points3d(X_ave[1],
-#'            X_ave[2],
-#'            X_ave[3],
-#'            add = TRUE, col = "red",
-#'            size = 10)
-#' }
-#' crownhull <- function(xyz, plotit = TRUE, col = "green", alpha = 0.8){
-#' if(is.list(xyz) && !is.data.frame(xyz))
-#'   p <- as.matrix(do.call("rbind", xyz))
-#' else
-#'   p <- as.matrix(xyz)
-#'  ch <- geometry::convhulln(p, "FA")
-#' if(plotit){
-#'   ch2 <- t(geometry::convhulln(p, "Qt"))
-#'   triangles3d(p[ch2,1], p[ch2,2], p[ch2,3], col = col, alpha = alpha, add = TRUE)
-#' }
-#' return(list(crownvolume = ch$vol, crownsurface = ch$area))
-#' }
-#'  
-#' # draw 3D confidence region based on out
-#' plot_3D_CR_demo(out$boot_optima)
 #' 
 #' # Example 2: run GloptiPolyRegion on a cubic, 5 vars example
 #' out <- GloptiPolyRegion(X = cubic_5D$design_matrix, y = cubic_5D$response,  
 #'                         degree = 3, lb = rep(0, 5), ub = rep(5, 5), B = 2000,  
-#'                         alpha = 0.05, maximization = TRUE, verbose = TRUE)
+#'                         alpha = 0.05, maximization = TRUE,
+#'                         outputPDFFile = "CR_cubic_5D.pdf", verbose = TRUE)
 #' # check result
 #' str(out)
 #' }
 #' @export                          
 GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
-                            maximization = TRUE, verbose = TRUE){
+                            maximization = TRUE, outputPDFFile = "CRplot.pdf",
+                            verbose = TRUE){
   # Check polynomial order -- -----------------------------------------------
   if(degree < 2 || degree > 3){
     stop("This function accepts only quadratic or cubic polynomials!")
@@ -152,6 +124,9 @@ GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
   if(plot_CR){
     if(verbose) print("Ploting the confidence region ... ")
     draw_2D_CRs(boot_optima, bagged_optimum, lb, ub)
+    pdf(file = outputPDFFile)
+    draw_2D_CRs(boot_optima, bagged_optimum, lb, ub)
+    dev.off()
   }
   # return ------------------------------------------------------------------
   list(boot_optima = boot_optima, bagged_optimum = bagged_optimum)

@@ -31,3 +31,4 @@ the optimal solution and its corresponding objective value
 \description{
 Optimize fitted polynomial functions via GloptiPolyR
 }
+\keyword{internal}

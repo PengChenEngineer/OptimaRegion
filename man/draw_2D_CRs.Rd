@@ -26,3 +26,4 @@ a figure displaying the confidence region of the true optimum,
 \description{
 Draw pair-wise projected 2D plots for the optima confidence region
 }
+\keyword{internal}

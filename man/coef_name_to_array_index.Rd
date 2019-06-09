@@ -23,3 +23,4 @@ integer matrix of shape (p, k); its (i, j) element speficies the
 \description{
 Get positions for monomial coefficients
 }
+\keyword{internal}
