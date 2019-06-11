@@ -60,6 +60,7 @@
 GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
                             maximization = TRUE, outputPDFFile = "CRplot.pdf",
                             verbose = TRUE){
+  X <- data.frame(X); y <- data.frame(y)
   # Check polynomial order -- -----------------------------------------------
   if(degree < 2 || degree > 3){
     stop("This function accepts only quadratic or cubic polynomials!")
@@ -76,7 +77,7 @@ GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
   if(scale) X <- encode_orthogonal(X, lb, ub) # scale X to [-1, 1]
   model_original <- fit_polym(X, y, degree) # fit polynomial model
   theta_hat <- model_original$coefficients; cov_theta_hat <- vcov(model_original)
-  p <- length(theta_hat); n <- length(y)
+  p <- length(theta_hat); n <- nrow(y)
   # Bootstrap ---------------------------------------------------------------
   if(verbose) print("Bootstrap ...")
   theta_hat_star <- matrix(NA, nrow = B, ncol = p)
