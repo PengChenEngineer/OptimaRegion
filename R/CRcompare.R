@@ -5,7 +5,7 @@
 #' distance between the optima of two response surface models. Models can be thin
 #' plate splines or quadratic polynomials
 #' \insertCite{DelCastilloCR}{OptimaRegion}.
-#' 
+#'
 #' Computes distribution-free bootstrapped confidence intervals on the mean and
 #' median distance between the optima of two different responses. The responses can
 #' be Thin Plate Spline models or Quadratic polynomial models. Program calls
@@ -107,18 +107,20 @@
 #' @examples
 #' \dontrun{
 #' # Example: two randomly generated data sets, quadratic polynomial responses.
-#' X1 <- cbind(runif(100,-2,2),runif(100,-2,2))
-#' y1 <- as.matrix(72-11.78*X1[,1]+0.74*X1[,2]-7.25*X1[,1]^2-7.55*X1[,2]^2-4.85*X1[,1]*X1[,2]+
-#'         rnorm(100,0,8))
-#' X2 <- cbind(runif(100,-2,2),runif(100,-2,2))
-#' y2 <- as.matrix(72-11.78*X2[,1]+0.74*X2[,2]-7.25*X2[,1]^2-7.55*X2[,2]^2-4.85*X2[,1]*X2[,2]+
-#'        rnorm(100,0,8))
-#' out <- CRcompare(X1 = X1, y1 = y1, X2 = X2, y2 = y2, responseType = 'Quad', nosim1and2 = 200,
-#'          alpha = 0.05, LB1 = c(-2, -2), UB1 = c(2, 2), LB2 = c(-2, -2), UB2 = c(2, 2))
+#' X1 <- cbind(runif(100, -2, 2), runif(100, -2, 2))
+#' y1 <- as.matrix(72 - 11.78 * X1[, 1] + 0.74 * X1[, 2] - 7.25 * X1[, 1]^2 - 7.55 * X1[, 2]^2 - 4.85 * X1[, 1] * X1[, 2] +
+#'   rnorm(100, 0, 8))
+#' X2 <- cbind(runif(100, -2, 2), runif(100, -2, 2))
+#' y2 <- as.matrix(72 - 11.78 * X2[, 1] + 0.74 * X2[, 2] - 7.25 * X2[, 1]^2 - 7.55 * X2[, 2]^2 - 4.85 * X2[, 1] * X2[, 2] +
+#'   rnorm(100, 0, 8))
+#' out <- CRcompare(
+#'   X1 = X1, y1 = y1, X2 = X2, y2 = y2, responseType = "Quad", nosim1and2 = 200,
+#'   alpha = 0.05, LB1 = c(-2, -2), UB1 = c(2, 2), LB2 = c(-2, -2), UB2 = c(2, 2)
+#' )
 #' }
 #' @importFrom stats median
 #' @export
-CRcompare <- function(X1, y1, X2, y2, responseType = 'TPS',
+CRcompare <- function(X1, y1, X2, y2, responseType = "TPS",
                       lambda = 0.04, nosim1and2 = 200, alpha = 0.05,
                       LB1, LB2, UB1, UB2,
                       triangularRegion1 = FALSE, vertex11 = NULL, vertex21 = NULL,
@@ -127,41 +129,53 @@ CRcompare <- function(X1, y1, X2, y2, responseType = 'TPS',
                       xlab1and2 = "Protein eaten (mg)",
                       ylab1and2 = "Carbohydrates eaten (mg)",
                       outputPDFFile1 = "CR_plot1.pdf", outputOptimaFile1 = "Optima1.txt",
-                      outputPDFFile2 = "CR_plot2.pdf", outputOptimaFile2 = "Optima2.txt"){
+                      outputPDFFile2 = "CR_plot2.pdf", outputOptimaFile2 = "Optima2.txt") {
 
   # Load required libraries
-  #t<-.libPaths()
-  #library("spam", lib.loc=t)
-  #library("boot", lib.loc=t)
-  #library("OptimaRegion", lib.loc=t)
+  # t<-.libPaths()
+  # library("spam", lib.loc=t)
+  # library("boot", lib.loc=t)
+  # library("OptimaRegion", lib.loc=t)
 
-  if(responseType=='TPS'){ #fit TPS models
+  if (responseType == "TPS") { # fit TPS models
     # Run OptRegionTps (from package OptimaRegion) twice
-    out1<-OptRegionTps(X=X1,y=y1,nosim=nosim1and2,lambda=lambda,alpha=alpha,LB=LB1,UB=UB1,triangularRegion=triangularRegion1,vertex1=vertex11,vertex2=vertex21,maximization=maximization1,xlab=xlab1and2,ylab=ylab1and2,
-                       outputPDFFile=outputPDFFile1,outputOptimaFile=outputOptimaFile1)
-    out2<-OptRegionTps(X=X2,y=y2,nosim=nosim1and2,lambda=lambda,alpha=alpha,LB=LB2,UB=UB2,triangularRegion=triangularRegion2,vertex1=vertex12,vertex2=vertex22,maximization=maximization2,xlab=xlab1and2,ylab=ylab1and2,
-                       outputPDFFile=outputPDFFile2,outputOptimaFile=outputOptimaFile2)
-  }else if(responseType=='Quad') #fit quadratic polynomails instead
+    out1 <- OptRegionTps(
+      X = X1, y = y1, nosim = nosim1and2, lambda = lambda, alpha = alpha, LB = LB1, UB = UB1, triangularRegion = triangularRegion1, vertex1 = vertex11, vertex2 = vertex21, maximization = maximization1, xlab = xlab1and2, ylab = ylab1and2,
+      outputPDFFile = outputPDFFile1, outputOptimaFile = outputOptimaFile1
+    )
+    out2 <- OptRegionTps(
+      X = X2, y = y2, nosim = nosim1and2, lambda = lambda, alpha = alpha, LB = LB2, UB = UB2, triangularRegion = triangularRegion2, vertex1 = vertex12, vertex2 = vertex22, maximization = maximization2, xlab = xlab1and2, ylab = ylab1and2,
+      outputPDFFile = outputPDFFile2, outputOptimaFile = outputOptimaFile2
+    )
+  } else if (responseType == "Quad") # fit quadratic polynomails instead
   {
-    #Run OptRegionQuad (from package OptimaRegion) twice
-    out1<-OptRegionQuad(X=X1,y=y1,nosim=nosim1and2,alpha=alpha,LB=LB1,UB=UB1,triangularRegion=triangularRegion1,vertex1=vertex11,vertex2=vertex21,maximization=maximization1,xlab=xlab1and2,ylab=ylab1and2,
-                        outputPDFFile=outputPDFFile1)
-    out2<-OptRegionQuad(X=X2,y=y2,nosim=nosim1and2, alpha=alpha,LB=LB2,UB=UB2,triangularRegion=triangularRegion2,vertex1=vertex12,vertex2=vertex22,maximization=maximization2,xlab=xlab1and2,ylab=ylab1and2,
-                        outputPDFFile=outputPDFFile2)
+    # Run OptRegionQuad (from package OptimaRegion) twice
+    out1 <- OptRegionQuad(
+      X = X1, y = y1, nosim = nosim1and2, alpha = alpha, LB = LB1, UB = UB1, triangularRegion = triangularRegion1, vertex1 = vertex11, vertex2 = vertex21, maximization = maximization1, xlab = xlab1and2, ylab = ylab1and2,
+      outputPDFFile = outputPDFFile1
+    )
+    out2 <- OptRegionQuad(
+      X = X2, y = y2, nosim = nosim1and2, alpha = alpha, LB = LB2, UB = UB2, triangularRegion = triangularRegion2, vertex1 = vertex12, vertex2 = vertex22, maximization = maximization2, xlab = xlab1and2, ylab = ylab1and2,
+      outputPDFFile = outputPDFFile2
+    )
   }
 
 
   # Form as many pairs of points as in the smallest set and compute their euclidean distances
-  Dmatrix<-spam::nearest.dist(x=out1$xin,y=out2$xin,upper=TRUE,delta=1e20)
-  dist<-spam::diag(Dmatrix)
-  mean<-mean(dist)
-  median<-median(dist)
+  Dmatrix <- spam::nearest.dist(x = out1$xin, y = out2$xin, upper = TRUE, delta = 1e20)
+  dist <- spam::diag(Dmatrix)
+  mean <- mean(dist)
+  median <- median(dist)
   # Bootstrap the distances between points in each CR
-  bmean<-boot::boot(dist,sampleMeans,R=1000)
-  bmedian<-boot::boot(dist,sampleMedians,R=1000)
-  ciMean<-boot::boot.ci(bmean,type=c("bca"))
-  ciMedian<-boot::boot.ci(bmedian,type=c("bca"))
-  return(list(dist=dist,mean=mean,median=median,ciMean=ciMean$bca,ciMedian=ciMedian$bca))
+  bmean <- boot::boot(dist, sampleMeans, R = 1000)
+  bmedian <- boot::boot(dist, sampleMedians, R = 1000)
+  ciMean <- boot::boot.ci(bmean, type = c("bca"))
+  ciMedian <- boot::boot.ci(bmedian, type = c("bca"))
+  return(list(dist = dist, mean = mean, median = median, ciMean = ciMean$bca, ciMedian = ciMedian$bca))
 }
-sampleMeans<-function(W,i){mean(W[i])}
-sampleMedians<-function(W,i){median(W[i])}
+sampleMeans <- function(W, i) {
+  mean(W[i])
+}
+sampleMedians <- function(W, i) {
+  median(W[i])
+}
