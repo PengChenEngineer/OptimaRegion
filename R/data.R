@@ -1,6 +1,6 @@
-#'Mixture-amount experiment
+#' Mixture-amount experiment dataset (2 factors)
 #'
-#'A pharmaceutical mixture-amount experiment in two components
+#' A pharmaceutical mixture-amount experiment in two components
 #'
 #'@format A data frame with 360 observations on the following 3 variables.
 #'\describe{
@@ -11,7 +11,7 @@
 #'@examples
 #'plot(Drug[,1:2])
 "Drug"
-#' Central composite experiment 
+#' Central composite design experiment dataset (3 factors) 
 #' 
 #' \insertCite{BoxDraper;textual}{OptimaRegion}'s three factor experimental dataset
 #' 
@@ -28,7 +28,7 @@
 #' }
 #' @importFrom Rdpack reprompt
 "quad_3D"
-#' A simulated dataset based on a cubic function
+#' Simulated dataset based on a cubic function (5 factors)
 #' 
 #' The dataset is simulated from the following function 
 #' \deqn{

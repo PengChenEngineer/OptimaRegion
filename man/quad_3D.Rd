@@ -3,7 +3,7 @@
 \docType{data}
 \name{quad_3D}
 \alias{quad_3D}
-\title{Central composite experiment}
+\title{Central composite design experiment dataset (3 factors)}
 \format{A data frame with 16 observations on the following 4 variables
 \describe{
   \item{x1}{percentage concentration of the 1st constituent, in coded unit}

@@ -1,5 +1,4 @@
-#' Computes bootstrapped confidence intervals for the distance between two
-#' response surface optima
+#' Confidence interval for the distance between two response surface optima (2 regressors)
 #'
 #' Computes bootstrapped confidence intervals for the mean and median
 #' distance between the optima of two response surface models. Models can be thin
@@ -108,11 +107,11 @@
 #' \dontrun{
 #' # Example: two randomly generated data sets, quadratic polynomial responses.
 #' X1 <- cbind(runif(100, -2, 2), runif(100, -2, 2))
-#' y1 <- as.matrix(72 - 11.78 * X1[, 1] + 0.74 * X1[, 2] - 7.25 * X1[, 1]^2 - 7.55 * X1[, 2]^2 - 4.85 * X1[, 1] * X1[, 2] +
-#'   rnorm(100, 0, 8))
+#' y1 <- as.matrix(72 - 11.78 * X1[, 1] + 0.74 * X1[, 2] - 7.25 * X1[, 1]^2 -
+#'   7.55 * X1[, 2]^2 - 4.85 * X1[, 1] * X1[, 2] + rnorm(100, 0, 8))
 #' X2 <- cbind(runif(100, -2, 2), runif(100, -2, 2))
-#' y2 <- as.matrix(72 - 11.78 * X2[, 1] + 0.74 * X2[, 2] - 7.25 * X2[, 1]^2 - 7.55 * X2[, 2]^2 - 4.85 * X2[, 1] * X2[, 2] +
-#'   rnorm(100, 0, 8))
+#' y2 <- as.matrix(72 - 11.78 * X2[, 1] + 0.74 * X2[, 2] - 7.25 * X2[, 1]^2 -
+#'   7.55 * X2[, 2]^2 - 4.85 * X2[, 1] * X2[, 2] + rnorm(100, 0, 8))
 #' out <- CRcompare(
 #'   X1 = X1, y1 = y1, X2 = X2, y2 = y2, responseType = "Quad", nosim1and2 = 200,
 #'   alpha = 0.05, LB1 = c(-2, -2), UB1 = c(2, 2), LB2 = c(-2, -2), UB2 = c(2, 2)

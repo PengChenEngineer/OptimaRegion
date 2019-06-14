@@ -1,8 +1,8 @@
-#' OptimaRegion
+#' OptimaRegion package description
 #' 
 #' OptimaRegion is a package for the computation of confidence regions on the location
 #' of the optima of response surface models
-#' \insertCite{DelCastilloCR}{OptimaRegion}.. 
+#' \insertCite{DelCastilloCR}{OptimaRegion}.
 #' Both parametric (quadratic polynomial) and
 #' nonparametric (thin plate spline) models are supported. The confidence regions 
 #' obtained do not rely on any distributional assumption, such as Normality of the 
@@ -33,6 +33,5 @@
 #'   \insertAllCited{}
 #' }
 #' @importFrom Rdpack reprompt
-#' @docType package
-#' @name OptimaRegion
+#' @name OptimaRegion-package
 NULL
