@@ -69,7 +69,7 @@ James Rapkin \email{jr297@exeter.ac.uk}.
 # Example 1: run GloptiPolyRegion on a quadratic, 3 vars example
 out <- GloptiPolyRegion(
   X = quad_3D[, 1:3], y = quad_3D[, 4], degree = 2,
-  lb = c(-2, -2, -2), ub = c(2, 2, 2), B = 2000, alpha = 0.1,
+  lb = c(-2, -2, -2), ub = c(2, 2, 2), B = 500, alpha = 0.1,
   maximization = TRUE,
   outputPDFFile = "CR_quad_3D.pdf", verbose = TRUE
 )
@@ -79,7 +79,7 @@ str(out)
 # Example 2: run GloptiPolyRegion on a cubic, 5 vars example
 out <- GloptiPolyRegion(
   X = cubic_5D$design_matrix, y = cubic_5D$response,
-  degree = 3, lb = rep(0, 5), ub = rep(5, 5), B = 2000,
+  degree = 3, lb = rep(0, 5), ub = rep(5, 5), B = 200,
   alpha = 0.05, maximization = TRUE,
   outputPDFFile = "CR_cubic_5D.pdf", verbose = TRUE
 )
