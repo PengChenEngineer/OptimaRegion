@@ -24,7 +24,9 @@
 #' the Tps parameters,using the notion of data depth according to
 #' \insertCite{yeh1997balanced;textual}{OptimaRegion}.
 #' Hence, this version does not rely on the normality assumption of the data.
-#' The TPS models are fit using Nychka's "fields" R package and its "Tps" function.
+#' The TPS models are fit using the "fields" R package
+#' \insertCite{fieldsPackage}{OptimaRegion}
+#' and its "Tps" function.
 #'
 #' @inheritParams OptRegionQuad
 #' @param lambda penalization parameter (larger values implies more smoothing).
