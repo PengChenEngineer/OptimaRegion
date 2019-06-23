@@ -139,7 +139,7 @@ GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
     if (verbose) print("Ploting the confidence region ... ")
     draw_2D_CRs(boot_optima, bagged_optimum, lb, ub)
     pdf(file = outputPDFFile)
-    draw_2D_CRs(boot_optima, bagged_optimum, lb, ub)
+    draw_2D_CRs(boot_optima, bagged_optimum, lb, ub, for_dev = FALSE)
     dev.off()
   }
   # return ------------------------------------------------------------------

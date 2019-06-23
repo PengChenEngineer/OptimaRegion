@@ -15,15 +15,10 @@
 #         along with the boostrap optima and the boosted optimum,
 #         projected onto a 2D plane
 draw_2D_CR <- function(boot_optima, boost_optimum,
-                       xlab, ylab, xlim, ylim, main) {
+                       xlab, ylab, xlim, ylim) {
   # get the indices of the points that are on the boundary of the convex hull
   id_cvx_hull <- chull(boot_optima)
   id_cvx_hull <- c(id_cvx_hull, id_cvx_hull[1]) # add 1st point to get a loop
-  # compute the area of the convex hull
-  CR_area <- geometry::polyarea(
-    boot_optima[id_cvx_hull, 1],
-    boot_optima[id_cvx_hull, 2]
-  )
   # cluster the bootstrap optima
   cluster_boot_optima <- try( # in case of perfect fit
     mclust::densityMclust(boot_optima, verbose = FALSE),
@@ -38,14 +33,12 @@ draw_2D_CR <- function(boot_optima, boost_optimum,
     # plot the bootstrap optima points
     points(boot_optima,
       col = "black", cex = 0.5, pch = 16,
-      xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
-      main = paste(main, "with area = ", round(CR_area, 2))
+      xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim
     )
   } else {
     plot(boot_optima,
       col = "black", cex = 0.5, pch = 16,
-      xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
-      main = paste(main, "with area = ", round(CR_area, 2))
+      xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim
     )
   }
   # plot the boundary of the convex hull of the bootstrap optima
@@ -60,8 +53,8 @@ draw_2D_CR <- function(boot_optima, boost_optimum,
 # @return a figure displaying the confidence region of the true optimum,
 #         projected onto each pairwise-variable planes
 #' @importFrom graphics plot.new
-draw_2D_CRs <- function(boot_optima, boost_optimum, lb, ub) {
-  par(mar = c(1, 1, 1, 1))
+draw_2D_CRs <- function(boot_optima, boost_optimum, lb, ub, for_dev = TRUE) {
+  if(for_dev) dev.new()
   k <- ncol(boot_optima)
   par(mfrow = c(k - 1, k - 1))
   for (i in 1:(k - 1)) { # each row of the sub-figures
@@ -71,8 +64,7 @@ draw_2D_CRs <- function(boot_optima, boost_optimum, lb, ub) {
           boot_optima = boot_optima[, c(j, i)],
           boost_optimum = boost_optimum[c(j, i)],
           xlab = paste("x", j), ylab = paste("x", i),
-          xlim = c(lb[j], ub[j]), ylim = c(lb[i], ub[i]),
-          main = paste("CR projection on x", i, " - x", j, " plane")
+          xlim = c(lb[j], ub[j]), ylim = c(lb[i], ub[i])
         )
       } else {
         plot.new()
