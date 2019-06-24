@@ -5,7 +5,8 @@
 \title{Confidence region for optima of up to cubic polynomial models (up to 5 regressors)}
 \usage{
 GloptiPolyRegion(X, y, degree, lb, ub, B = 200, alpha = 0.05,
-  maximization = TRUE, outputPDFFile = "CRplot.pdf", verbose = TRUE)
+  maximization = TRUE, axes_labels = NULL,
+  outputPDFFile = "CRplot.pdf", verbose = TRUE)
 }
 \arguments{
 \item{X}{numeric matrix of shape (N, k); N is the sample size; k is the
@@ -30,6 +31,10 @@ confidence level, 1 - alpha, of the confidence region}
 
 \item{maximization}{boolean scalor; if specifies whether the algorithm
 computes the confidence region for the maxima or minima}
+
+\item{axes_labels}{vector of strings; it specifies the name of each experimental factor
+to be displayed on the CR plot; the default value is NULL, when
+the labels will be set to x1, x2, ...}
 
 \item{outputPDFFile}{name of the PDF file where the CR plot is saved
 (default: "CR_plot.pdf")}

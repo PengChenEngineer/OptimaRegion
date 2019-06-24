@@ -20,6 +20,9 @@
 #'              confidence level, 1 - alpha, of the confidence region
 #' @param maximization boolean scalor; if specifies whether the algorithm
 #'                     computes the confidence region for the maxima or minima
+#' @param axes_labels vector of strings; it specifies the name of each experimental factor
+#'                    to be displayed on the CR plot; the default value is NULL, when
+#'                    the labels will be set to x1, x2, ...
 #' @param verbose boolean scalor; it specifies whether to display running status
 #' @inheritParams OptRegionQuad
 #' @return Upon completion, a figure displaying the confidence region of the true optimum
@@ -62,8 +65,8 @@
 #' }
 #' @export
 GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
-                             maximization = TRUE, outputPDFFile = "CRplot.pdf",
-                             verbose = TRUE) {
+                             maximization = TRUE, axes_labels = NULL, 
+                             outputPDFFile = "CRplot.pdf", verbose = TRUE) {
   X <- data.frame(X)
   y <- data.frame(y)
   # Check polynomial order -- -----------------------------------------------
@@ -137,9 +140,15 @@ GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
   # plotting ----------------------------------------------------------------
   if (plot_CR) {
     if (verbose) print("Ploting the confidence region ... ")
-    draw_2D_CRs(boot_optima, bagged_optimum, lb, ub)
+    draw_2D_CRs(
+      boot_optima, bagged_optimum, lb, ub,
+      axes_labels = axes_labels
+    )
     pdf(file = outputPDFFile)
-    draw_2D_CRs(boot_optima, bagged_optimum, lb, ub, for_dev = FALSE)
+    draw_2D_CRs(
+      boot_optima, bagged_optimum, lb, ub,
+      for_dev = FALSE, axes_labels = axes_labels
+    )
     dev.off()
   }
   # return ------------------------------------------------------------------

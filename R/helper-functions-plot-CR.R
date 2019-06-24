@@ -53,17 +53,28 @@ draw_2D_CR <- function(boot_optima, boost_optimum,
 # @return a figure displaying the confidence region of the true optimum,
 #         projected onto each pairwise-variable planes
 #' @importFrom graphics plot.new
-draw_2D_CRs <- function(boot_optima, boost_optimum, lb, ub, for_dev = TRUE) {
-  if(for_dev) dev.new()
+draw_2D_CRs <- function(boot_optima, boost_optimum, lb, ub,
+                        for_dev = TRUE, axes_labels) {
+  if (for_dev) dev.new()
   k <- ncol(boot_optima)
   par(mfrow = c(k - 1, k - 1))
   for (i in 1:(k - 1)) { # each row of the sub-figures
     for (j in 2:k) { # sub-figure in each row
       if (i < j) {
+        if (is.null(axes_labels)) {
+          xlab <- paste("x", j)
+          ylab <- paste("x", i)
+        } else {
+          if(!is.null(axes_labels) && length(axes_labels) != k) {
+            stop("Incorrect number of labels!")
+          }
+          xlab <- axes_labels[j]
+          ylab <- axes_labels[i]
+        }
         draw_2D_CR(
           boot_optima = boot_optima[, c(j, i)],
           boost_optimum = boost_optimum[c(j, i)],
-          xlab = paste("x", j), ylab = paste("x", i),
+          xlab = xlab, ylab = ylab,
           xlim = c(lb[j], ub[j]), ylim = c(lb[i], ub[i])
         )
       } else {
