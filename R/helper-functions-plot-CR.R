@@ -53,6 +53,7 @@ draw_2D_CR <- function(boot_optima, boost_optimum,
 # @return a figure displaying the confidence region of the true optimum,
 #         projected onto each pairwise-variable planes
 #' @importFrom graphics plot.new
+#' @importFrom grDevices dev.new
 draw_2D_CRs <- function(boot_optima, boost_optimum, lb, ub,
                         for_dev = TRUE, axes_labels) {
   if (for_dev) dev.new()
