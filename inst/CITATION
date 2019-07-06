@@ -1,0 +1,22 @@
+citHeader("To cite lubridate in publications use:")
+
+citEntry(
+  entry = "Manual",
+  title = "OptimaRegion: Confidence Regions for Optima",
+  author = personList(as.person("Enrique del Castillo"),
+                      as.person("Peng Chen"),
+                      as.person("Adam Meyers"),
+                      as.person("John Hunt"),
+                      as.person("James Rapkin")),
+  year = "2019",
+  note = "R package version 1.1",
+  url = "https://CRAN.R-project.org/package=OptimaRegion",
+
+  textVersion  =
+  paste(
+    "Enrique del Castillo, Peng Chen, Adam Meyers, John Hunt and James Rapkin (2019).",
+    "OptimaRegion: Confidence Regions for Optima.",
+    "R package version 1.1.",
+    "https://CRAN.R-project.org/package=OptimaRegion."
+  )
+)
