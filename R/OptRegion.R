@@ -1,0 +1,83 @@
+#' Main Function
+#' 
+#' Main Function
+#' 
+#'@examples
+#' \dontrun{
+#' # Example 1: randomly generated 2-variable response surface data
+#' X <- cbind(runif(100, -2, 2), runif(100, -2, 2))
+#' y <- as.matrix(72 - 11.78 * X[, 1] + 0.74 * X[, 2] - 7.25 * X[, 1]^2 - 7.55 * X[, 2]^2 -
+#'   4.85 * X[, 1] * X[, 2] + rnorm(100, 0, 8))
+#' # Find a 95 percent confidence region for the maximum of a quadratic polynomial
+#' # fitted) to these data
+#' out <- OptRegion(
+#'   X = X, y = y, B = 200, LB = c(-2, -2), UB = c(2, 2), RSM = "quad"
+#' )
+#' plot(out, xlab = "X1", ylab = "X2")
+#'
+#' # Example 2: a mixture-amount experiment in two components (Drug dataset) with
+#' # non-normal data. Note triangular experimental region. Resulting 95%
+#' # confidence region is pushed against the constraint and results in a
+#' # "thin line"
+#' out <- OptRegion(
+#'   X = Drug[, 1:2], y = Drug[, 3], B = 500, LB = c(0, 0), UB = c(0.08, 11), RSM = "quad",
+#'   triangularRegion = TRUE, vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8))
+#' plot(out, xlab = "Component 1 (mg.)", ylab = "Component 2 (mg.)")
+#' 
+#' # Example 3: randomly generated 2-variable response surface data
+#' X <- cbind(runif(100, -2, 2), runif(100, -2, 2))
+#' y <- as.matrix(72 - 11.78 * X[, 1] + 0.74 * X[, 2] - 7.25 * X[, 1]^2 - 
+#'   7.55 * X[, 2]^2 - 4.85 * X[, 1] * X[, 2] + rnorm(100, 0, 8))
+#' # Find a 95 percent confidence region for the maximum of a Thin Plate Spline
+#' # model fitted to these data
+#' out <- OptRegion(X = X, y = y, B = 200, LB = c(-2, -2), UB = c(2, 2), RSM = "tps")
+#' plot(out, xlab = "X1", ylab = "X2")
+#' 
+#' # Example 4: a mixture-amount experiment in two components (Drug dataset) with
+#' # non-normal data. Note triangular experimental region. Resulting 95p confidence
+#' # region of the maxima of a TPS model has area > 0. Contrast with region for
+#' # quadratic polynomial model. Note: 500 bootstrap iterations may take a few minutes.
+#' out <- OptRegion(
+#'   X = Drug[, 1:2], y = Drug[, 3], B = 500, lambda = 0.05, 
+#'   LB = c(0, 0), UB = c(0.08, 11), RSM = "tps",
+#'   triangularRegion = TRUE, vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8))
+#' plot(out, xlab = "Component 1 (mg.)", ylab = "Component 2 (mg.)")
+#' 
+#' # Example 5: run GloptiPolyRegion on a quadratic, 3 vars example
+#' out <- OptRegion(
+#'   X = quad_3D[, 1:3], y = quad_3D[, 4], B = 500, alpha = 0.1,
+#'   LB = c(-2, -2, -2), UB = c(2, 2, 2), RSM = "poly", degree = 2,
+#'   maximization = TRUE, verbose = TRUE)
+#' plot(out, c("x1", "x2", "x3"))
+#' 
+#' # Example 6: run GloptiPolyRegion on a cubic, 5 vars example
+#' out <- OptRegion(
+#'   X = cubic_5D$design_matrix, y = cubic_5D$response, B = 200, alpha = 0.05,
+#'   LB = rep(0, 5), UB = rep(5, 5), RSM = "poly", degree = 3,
+#'   maximization = TRUE, verbose = TRUE)
+#' plot(out, c("x1", "x2", "x3", "x4", "x5"))
+#' }
+#' @export
+OptRegion <- function(X, y, B = 200, alpha = 0.05, LB, UB,
+                      RSM,
+                      triangularRegion = FALSE, vertex1 = NULL, vertex2 = NULL,
+                      maximization = TRUE,
+                      lambda = 0.04,
+                      degree = 2, verbose = TRUE) {
+  if (RSM == "quad") {
+    res <- OptRegionQuad(X = X, y = y, nosim = B, alpha = alpha, LB = LB, UB = UB,
+                         triangularRegion = triangularRegion, vertex1 = vertex1, vertex2 = vertex2,
+                         maximization = maximization)
+  } else if (RSM == "tps") {
+    res <- OptRegionTps(X = X, y = y, lambda = lambda, nosim = B, alpha = alpha, LB = LB, UB = UB,
+                        triangularRegion = triangularRegion, vertex1 = vertex1, vertex2 = vertex2,
+                        maximization = maximization)
+  } else if (RSM == "poly") {
+    res <- GloptiPolyRegion(X = X, y = y, degree = degree, lb = LB, ub = UB, B = B, alpha = alpha,
+                            maximization = maximization, verbose = verbose)
+  } else {
+    stop("Function does not support this RSM type.")
+  }
+  # return
+  res
+}
