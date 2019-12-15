@@ -87,11 +87,11 @@
 #' y <- as.matrix(72 - 11.78 * X[, 1] + 0.74 * X[, 2] - 7.25 * X[, 1]^2 - 7.55 * X[, 2]^2 -
 #'   4.85 * X[, 1] * X[, 2] + rnorm(100, 0, 8))
 #' # Find a 95 percent confidence region for the maximum of a quadratic polynomial
-#' # fitted to these data
+#' # fitted) to these data
 #' out <- OptRegionQuad(
-#'   X = X, y = y, nosim = 200, LB = c(-2, -2), UB = c(2, 2),
-#'   xlab = "X1", ylab = "X2"
+#'   X = X, y = y, nosim = 200, LB = c(-2, -2), UB = c(2, 2)
 #' )
+#' plot(out, xlab = "X1", ylab = "X2")
 #'
 #' # Example 2: a mixture-amount experiment in two components (Drug dataset) with
 #' # non-normal data. Note triangular experimental region. Resulting 95%
@@ -99,10 +99,9 @@
 #' # "thin line"
 #' out <- OptRegionQuad(
 #'   X = Drug[, 1:2], y = Drug[, 3], nosim = 500,
-#'   LB = c(0, 0), UB = c(0.08, 11), xlab = "Component 1 (mg.)",
-#'   ylab = "Component 2 (mg.)", triangularRegion = TRUE,
-#'   vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8), outputPDFFile = "Mixture_plot.pdf"
-#' )
+#'   LB = c(0, 0), UB = c(0.08, 11), triangularRegion = TRUE,
+#'   vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8))
+#' plot(out, xlab = "Component 1 (mg.)", ylab = "Component 2 (mg.)")
 #' }
 #' @importFrom grDevices chull dev.off heat.colors pdf
 #' @importFrom graphics contour image lines par plot points polygon
@@ -110,9 +109,7 @@
 #' @export
 OptRegionQuad <- function(X, y, nosim = 200, alpha = 0.05, LB, UB,
                           triangularRegion = FALSE, vertex1 = NULL, vertex2 = NULL,
-                          maximization = TRUE,
-                          xlab = "Protein eaten, mg", ylab = "Carbohydrates eaten, mg",
-                          outputPDFFile = "CRplot.pdf") {
+                          maximization = TRUE) {
   # Check this is for k=2 factors only
   k <- dim(X)[2]
   if ((k > 2) | (k < 2)) stop("Error. Number of factors must equal to 2")
@@ -249,10 +246,26 @@ OptRegionQuad <- function(X, y, nosim = 200, alpha = 0.05, LB, UB,
     } # endfor j
     # save best solution found among all tries for simulated parameter set m
     xin[m, ] <- bestSol
-    print(c(m, best, xin[m, ], bestStatus))
+    # print(c(m, best, xin[m, ], bestStatus))
   } # endfor m
+  bagged_optimum <- apply(xin, 2, mean)
+  CR_data <- list(boot_optima = xin, bagged_optimum = bagged_optimum, X = X, y = y,
+                  LB = LB, UB = UB)
+  # return
+  structure(CR_data, class = "crquad")
+} # end main program
+
+#'@export
+plot.crquad <- function(CR_data,
+                        xlab = "Protein eaten, mg", ylab = "Carbohydrates eaten, mg") {
+  xin <- CR_data$boot_optima
+  centroid <- CR_data$bagged_optimum
+  X <- CR_data$X
+  y <- CR_data$y
+  LB <- CR_data$LB
+  UB <- CR_data$UB
   # Plot CR and thin plate spline fit to the experimental data
-  pdf(file = outputPDFFile, 5.5, 5.5)
+  # pdf(file = outputPDFFile, 5.5, 5.5)
   # x11(width=5.5,height=5.5) #output to screen
   # Load fields library here to avoid conflict with "depth"
   # library("fields",lib.loc=t)
@@ -260,21 +273,27 @@ OptRegionQuad <- function(X, y, nosim = 200, alpha = 0.05, LB, UB,
   # library("maptools",lib.loc=t)
   # library("Hmisc",lib.loc=t)
   # Draw Convex Hull of optima (approximates the CR)
-  plotConvexHull(xin, LB, UB, xlab, ylab)
-  par(new = TRUE)
-  par(cex.axis = 1.35, cex.lab = 1.5)
-  par(xaxt = "n", yaxt = "n")
+  # plotConvexHull(xin, LB, UB, xlab, ylab)
+  # par(new = TRUE)
+  # par(cex.axis = 1.35, cex.lab = 1.5)
+  # par(xaxt = "n", yaxt = "n")
   # Plot centroid
-  centroid <- apply(xin, 2, mean)
-  points(centroid[1], centroid[2], col = "red", pch = 19)
-  par(new = TRUE)
-  par(cex.axis = 1.35, cex.lab = 1.5)
-  par(xaxt = "n", yaxt = "n")
+  # points(centroid[1], centroid[2], col = "red", pch = 19)
+  # par(new = TRUE)
+  # par(cex.axis = 1.35, cex.lab = 1.5)
+  # par(xaxt = "n", yaxt = "n")
   # Draw contour plot of Tps fitted to available data
+  dev.new()
   tpsfit <- fields::Tps(X, y, lambda = 0.04)
   surface <- fields::predictSurface(tpsfit)
-  image(surface, lwd = 2, col = heat.colors(0), cex.axis = 1.35, cex.lab = 1.5, xlim = c(LB[1], UB[1]), ylim = c(LB[2], UB[2]))
-  contour(surface, add = T, drawlabels = T, lwd = 2, cex.axis = 1.35, cex.lab = 1.5, xlim = c(LB[1], UB[1]), ylim = c(LB[2], UB[2]))
+  image(surface, lwd = 2, col = heat.colors(0), xlim = c(LB[1], UB[1]), ylim = c(LB[2], UB[2]),
+        xlab = xlab, ylab = ylab)
+  contour(surface, add = T, drawlabels = T, lwd = 2,  xlim = c(LB[1], UB[1]), ylim = c(LB[2], UB[2]))
+  hpts_original <- chull(xin)
+  hpts_closed <- c(hpts_original, hpts_original[1])
+  lines(xin[hpts_closed, ], col = "blue")
+  polygon(xin[hpts_closed, 1], xin[hpts_closed, 2], col = "grey")
+  points(centroid[1], centroid[2], col = "red", pch = 19)
   # par(new=TRUE)
   # par(cex.axis=1.35, cex.lab=1.5)
   # par(xaxt='n', yaxt='n')
@@ -287,10 +306,9 @@ OptRegionQuad <- function(X, y, nosim = 200, alpha = 0.05, LB, UB,
   # par(cex.axis=1.35, cex.lab=1.5)
   # par(xaxt='n', yaxt='n')
   # arrows(29.51+1.30,59.12,29.51-1.30,59.12,code=3,angle=90,length=0.015,col="black",lwd=2)
-  dev.off()
+  # dev.off()
   # detach()
-  return(list(meanPoint = centroid, xin = xin))
-} # end main program
+}
 
 
 constraintsQuad <- function(x, betaCoef, maximization, m1, m2, m3, bintercept) {

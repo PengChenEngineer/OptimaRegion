@@ -6,9 +6,7 @@
 \usage{
 OptRegionTps(X, y, lambda = 0.04, nosim = 1000, alpha = 0.05, LB, UB,
   triangularRegion = FALSE, vertex1 = NULL, vertex2 = NULL,
-  maximization = TRUE, xlab = "Protein eaten, mg",
-  ylab = "Carbohydrate eaten, mg", outputPDFFile = "CRplot.pdf",
-  outputOptimaFile = "Optima.txt")
+  maximization = TRUE)
 }
 \arguments{
 \item{X}{nx2 matrix with the values of the 2 regressors (experimental factors)
@@ -48,15 +46,6 @@ triangular region (third vertex is (0,0) by default). Must be provided
 if triangularRegion is TRUE (NOTE: vertices numbered clockwise)}
 
 \item{maximization}{logical: if TRUE (default) it maximizes it FALSE it minimizes}
-
-\item{xlab}{text label for x axis in confidence region plot
-(default: "Protein eaten (mg)")}
-
-\item{ylab}{text label for y axis in confidence region plot
-(default: "Carbohydrates eaten (mg)")}
-
-\item{outputPDFFile}{name of the PDF file where the CR plot is saved
-(default: "CR_plot.pdf")}
 
 \item{outputOptimaFile}{name of the text file containing the coordinates of all
 the optima found (same information as in output vector xin, see below)}
@@ -122,10 +111,8 @@ y <- as.matrix(72 - 11.78 * X[, 1] + 0.74 * X[, 2] - 7.25 * X[, 1]^2 -
   7.55 * X[, 2]^2 - 4.85 * X[, 1] * X[, 2] + rnorm(100, 0, 8))
 # Find a 95 percent confidence region for the maximum of a Thin Plate Spline
 # model fitted to these data
-out <- OptRegionTps(
-  X = X, y = y, nosim = 200, LB = c(-2, -2), UB = c(2, 2),
-  xlab = "X1", ylab = "X2"
-)
+out <- OptRegionTps(X = X, y = y, nosim = 200, LB = c(-2, -2), UB = c(2, 2))
+plot(out, xlab = "X1", ylab = "X2")
 
 # Example 2: a mixture-amount experiment in two components (Drug dataset) with
 # non-normal data. Note triangular experimental region. Resulting 95p confidence
@@ -133,10 +120,8 @@ out <- OptRegionTps(
 # quadratic polynomial model. Note: 500 bootstrap iterations may take a few minutes.
 out <- OptRegionTps(
   X = Drug[, 1:2], y = Drug[, 3], nosim = 500, lambda = 0.05, LB = c(0, 0),
-  UB = c(0.08, 11), xlab = "Component 1 (mg.)", ylab = "Component 2 (mg.)",
-  triangularRegion = TRUE, vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8),
-  outputPDFFile = "Mixture_plot.pdf"
-)
+  UB = c(0.08, 11), triangularRegion = TRUE, vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8))
+plot(out, xlab = "Component 1 (mg.)", ylab = "Component 2 (mg.)")
 }
 }
 \references{

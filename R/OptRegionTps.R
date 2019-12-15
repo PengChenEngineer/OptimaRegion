@@ -57,10 +57,8 @@
 #'   7.55 * X[, 2]^2 - 4.85 * X[, 1] * X[, 2] + rnorm(100, 0, 8))
 #' # Find a 95 percent confidence region for the maximum of a Thin Plate Spline
 #' # model fitted to these data
-#' out <- OptRegionTps(
-#'   X = X, y = y, nosim = 200, LB = c(-2, -2), UB = c(2, 2),
-#'   xlab = "X1", ylab = "X2"
-#' )
+#' out <- OptRegionTps(X = X, y = y, nosim = 200, LB = c(-2, -2), UB = c(2, 2))
+#' plot(out, xlab = "X1", ylab = "X2")
 #'
 #' # Example 2: a mixture-amount experiment in two components (Drug dataset) with
 #' # non-normal data. Note triangular experimental region. Resulting 95p confidence
@@ -68,10 +66,8 @@
 #' # quadratic polynomial model. Note: 500 bootstrap iterations may take a few minutes.
 #' out <- OptRegionTps(
 #'   X = Drug[, 1:2], y = Drug[, 3], nosim = 500, lambda = 0.05, LB = c(0, 0),
-#'   UB = c(0.08, 11), xlab = "Component 1 (mg.)", ylab = "Component 2 (mg.)",
-#'   triangularRegion = TRUE, vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8),
-#'   outputPDFFile = "Mixture_plot.pdf"
-#' )
+#'   UB = c(0.08, 11), triangularRegion = TRUE, vertex1 = c(0.02, 11), vertex2 = c(0.08, 1.8))
+#' plot(out, xlab = "Component 1 (mg.)", ylab = "Component 2 (mg.)")
 #' }
 #' @importFrom Rdpack reprompt
 #' @importFrom grDevices chull dev.off heat.colors pdf
@@ -80,9 +76,7 @@
 #' @export
 OptRegionTps <- function(X, y, lambda = 0.04, nosim = 1000, alpha = 0.05, LB, UB,
                          triangularRegion = FALSE, vertex1 = NULL, vertex2 = NULL,
-                         maximization = TRUE,
-                         xlab = "Protein eaten, mg", ylab = "Carbohydrate eaten, mg",
-                         outputPDFFile = "CRplot.pdf", outputOptimaFile = "Optima.txt") {
+                         maximization = TRUE) {
   # Check that X matrix has k=2 factors
   k <- dim(X)[2]
   if ((k > 2) | (k < 2)) stop("Error. Number of factors must equal to 2")
@@ -157,7 +151,7 @@ OptRegionTps <- function(X, y, lambda = 0.04, nosim = 1000, alpha = 0.05, LB, UB
     # find square root matrix and standardize w2 vectors following Yeh and Singh, J.Royal Stat. Soc. 59(3), pp. 639-652, 1997
     Ssqrtinv <- solve(e$vectors %*% diag(sqrt(e$values)) %*% t(e$vectors))
     w2vectorsStd[i, ] <- Ssqrtinv %*% (w2vectors[i, ] - w2Hat) * sqrt(nn - p)
-    print(i)
+    #print(i)
   }
   deep <- vector(length = nosim)
   w2vectorsStdMat <- as.matrix(w2vectorsStd)
@@ -231,31 +225,43 @@ OptRegionTps <- function(X, y, lambda = 0.04, nosim = 1000, alpha = 0.05, LB, UB
     } # endfor j
     # save best solution found among all tries for simulated parameter set m
     xin[m, ] <- bestSol
-    print(c(m, best, xin[m, ], bestStatus))
+    # print(c(m, best, xin[m, ], bestStatus))
   } # endfor m
+  bagged_optimum <- apply(xin, 2, mean)
+  CR_data <- list(boot_optima = xin, bagged_optimum = bagged_optimum, X = X, y = y,
+                  LB = LB, UB = UB, lambda = lambda)
+  # return
+  structure(CR_data, class = "crtps")
+} # end main program
 
+#'@export
+plot.crtps <- function(CR_data,
+                       xlab = "Protein eaten, mg", ylab = "Carbohydrates eaten, mg"){
+  xin <- CR_data$boot_optima
+  centroid <- CR_data$bagged_optimum
+  X <- CR_data$X
+  y <- CR_data$y
+  LB <- CR_data$LB
+  UB <- CR_data$UB
+  lambda <- CR_data$lambda
+  dev.new()
+  # Draw contour plot of Tps fitted to available data
+  tpsfit <- fields::Tps(X, y, lambda = lambda)
+  surface <- fields::predictSurface(tpsfit)
+  image(surface, lwd = 2, col = heat.colors(0), xlim = c(LB[1], UB[1]), ylim = c(LB[2], UB[2]),
+        xlab = xlab, ylab = ylab)
+  contour(surface, add = T, drawlabels = T, lwd = 2,  xlim = c(LB[1], UB[1]), ylim = c(LB[2], UB[2]))
+  hpts_original <- chull(xin)
+  hpts_closed <- c(hpts_original, hpts_original[1])
+  lines(xin[hpts_closed, ], col = "blue")
+  polygon(xin[hpts_closed, 1], xin[hpts_closed, 2], col = "grey")
+  points(centroid[1], centroid[2], col = "red", pch = 19)
   # Plot CR and thin plate spline fit to the experimental data on output file
-  pdf(file = outputPDFFile, 5.5, 5.5) # comment out to have output to screen
+  # pdf(file = outputPDFFile, 5.5, 5.5) # comment out to have output to screen
   # x11() # uncomment to have output to screen
   # library("splancs",lib.loc=t)
   # library("maptools",lib.loc=t)
   # library("Hmisc",lib.loc=t)
-  # Draw Convex Hull of optima (approximates the CR)
-  coords <- plotConvexHull(xin, LB, UB, xlab, ylab)
-  par(new = TRUE)
-  par(cex.axis = 1.35, cex.lab = 1.5)
-  par(xaxt = "n", yaxt = "n")
-  # draw centroid of CR
-  centroid <- apply(xin, 2, mean)
-  points(centroid[1], centroid[2], col = "red", pch = 19)
-  par(new = TRUE)
-  par(cex.axis = 1.35, cex.lab = 1.5)
-  par(xaxt = "n", yaxt = "n")
-  # Draw contour plot of Tps fitted to available data
-  tpsfit <- fields::Tps(X, y, lambda = lambda)
-  surface <- fields::predictSurface(tpsfit)
-  image(surface, lwd = 2, col = heat.colors(0), cex.axis = 1.35, cex.lab = 1.5, xlim = c(LB[1], UB[1]), ylim = c(LB[2], UB[2]))
-  contour(surface, add = T, drawlabels = T, lwd = 2, cex.axis = 1.35, cex.lab = 1.5, xlim = c(LB[1], UB[1]), ylim = c(LB[2], UB[2]))
   # par(new=TRUE)
   # par(cex.axis=1.35, cex.lab=1.5)
   # par(xaxt='n', yaxt='n')
@@ -263,13 +269,11 @@ OptRegionTps <- function(X, y, lambda = 0.04, nosim = 1000, alpha = 0.05, LB, UB
   # arrows(29.51,59.12+1.96,29.51,59.12-1.96,code=3,angle=90,length=0.015,col="black",lwd=2)
   # par(new=TRUE)
   # arrows(29.51+1.30,59.12,29.51-1.30,59.12,code=3,angle=90,length=0.015,col="black",lwd=2)
-  dev.off()
+  #dev.off()
   # return optimal points in text file
-  write(t(xin), file = outputOptimaFile, ncolumns = 2)
+  # write(t(xin), file = outputOptimaFile, ncolumns = 2)
   # detach()
-  return(list(meanPoint = centroid, xin = xin))
-} # end main program
-
+}
 
 constraintsTps <- function(x, cCoef, dCoef, maximization, m1, m2, m3, bintercept, knots, center, scale) {
   # Computes the constraints limiting the triangular-like experimental region (approximated with a triangle, so 3 constraints)

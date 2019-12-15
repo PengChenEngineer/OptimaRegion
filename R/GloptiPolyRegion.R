@@ -47,26 +47,19 @@
 #' out <- GloptiPolyRegion(
 #'   X = quad_3D[, 1:3], y = quad_3D[, 4], degree = 2,
 #'   lb = c(-2, -2, -2), ub = c(2, 2, 2), B = 500, alpha = 0.1,
-#'   maximization = TRUE,
-#'   outputPDFFile = "CR_quad_3D.pdf", verbose = TRUE
-#' )
-#' # check result
-#' str(out)
+#'   maximization = TRUE, verbose = TRUE)
+#' plot(out, c("x1", "x2", "x3"))
 #'
 #' # Example 2: run GloptiPolyRegion on a cubic, 5 vars example
 #' out <- GloptiPolyRegion(
 #'   X = cubic_5D$design_matrix, y = cubic_5D$response,
 #'   degree = 3, lb = rep(0, 5), ub = rep(5, 5), B = 200,
-#'   alpha = 0.05, maximization = TRUE,
-#'   outputPDFFile = "CR_cubic_5D.pdf", verbose = TRUE
-#' )
-#' # check result
-#' str(out)
+#'   alpha = 0.05, maximization = TRUE, verbose = TRUE)
+#' plot(out, c("x1", "x2", "x3", "x4", "x5"))
 #' }
 #' @export
 GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
-                             maximization = TRUE, axes_labels = NULL, 
-                             outputPDFFile = "CRplot.pdf", verbose = TRUE) {
+                             maximization = TRUE, verbose = TRUE) {
   X <- data.frame(X)
   y <- data.frame(y)
   # Check polynomial order -- -----------------------------------------------
@@ -137,20 +130,19 @@ GloptiPolyRegion <- function(X, y, degree, lb, ub, B = 200, alpha = 0.05,
   boot_optima <- boot_optima[indices, ]
   if (scale) boot_optima <- decode_orthogonal(boot_optima, lb, ub)
   bagged_optimum <- apply(boot_optima, 2, mean)
-  # plotting ----------------------------------------------------------------
-  if (plot_CR) {
-    if (verbose) print("Ploting the confidence region ... ")
-    draw_2D_CRs(
-      boot_optima, bagged_optimum, lb, ub,
-      axes_labels = axes_labels
-    )
-    pdf(file = outputPDFFile)
-    draw_2D_CRs(
-      boot_optima, bagged_optimum, lb, ub,
-      for_dev = FALSE, axes_labels = axes_labels
-    )
-    dev.off()
-  }
+  CR_data <- list(boot_optima = boot_optima, bagged_optimum = bagged_optimum, lb = lb, ub = ub)
   # return ------------------------------------------------------------------
-  list(boot_optima = boot_optima, bagged_optimum = bagged_optimum)
+  structure(CR_data, class = "crpoly")
+}
+
+#'@export
+plot.crpoly <- function(CR_data, axes_labels) {
+  boot_optima <- CR_data$boot_optima
+  bagged_optimum <- CR_data$bagged_optimum
+  lb <- CR_data$lb
+  ub <- CR_data$ub
+  draw_2D_CRs(
+    boot_optima, bagged_optimum, lb, ub,
+    axes_labels = axes_labels
+  )
 }
