@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Main Function — OptRegion • OptimaRegion</title>
+<title>Confidence Regions for Response Surface Optima — OptRegion • OptimaRegion</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,13 @@
 
 
 
-<meta property="og:title" content="Main Function — OptRegion" />
+<meta property="og:title" content="Confidence Regions for Response Surface Optima — OptRegion" />
 
-<meta property="og:description" content="Main Function" />
+<meta property="og:description" content="This function bootstraps a Confidence Region (CR) on the resposne surface optima.
+One can choose from several popular Response Surface Models (RSM) to capture the true
+reponse pattern, such as polynomial model and Thin Plate Spline (TPS) model
+(Del Castillo et al. 2019)
+." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -81,6 +85,18 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/my-vignette.html">my-vignette</a>
+    </li>
+  </ul>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -98,21 +114,134 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Main Function</h1>
+    <h1>Confidence Regions for Response Surface Optima</h1>
     
     <div class="hidden name"><code>OptRegion.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Main Function</p>
+    <p>This function bootstraps a Confidence Region (CR) on the resposne surface optima.
+One can choose from several popular Response Surface Models (RSM) to capture the true
+reponse pattern, such as polynomial model and Thin Plate Spline (TPS) model
+(Del Castillo et al. 2019)
+.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>OptRegion</span>(<span class='no'>X</span>, <span class='no'>y</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='fl'>200</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='no'>LB</span>, <span class='no'>UB</span>, <span class='no'>RSM</span>,
-  <span class='kw'>triangularRegion</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>vertex1</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>vertex2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>maximization</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>0.04</span>, <span class='kw'>degree</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
-        
+    <pre class="usage"><span class='fu'>OptRegion</span>(<span class='no'>X</span>, <span class='no'>y</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>num_boot</span> <span class='kw'>=</span> <span class='fl'>200</span>, <span class='no'>RSM</span>, <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>0.04</span>,
+  <span class='kw'>degree</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>maximization</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>constr_lb</span>, <span class='no'>constr_ub</span>,
+  <span class='kw'>constr_triangle</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>constr_vertex_1</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>constr_vertex_2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>X</th>
+      <td><p>A numeric matrix of shape (N, k), where N represents the number of data points
+and k represents the number of regressors. 
+It contains the N design points from the experimental data.
+The value that k can take depends on the RSM argument.</p></td>
+    </tr>
+    <tr>
+      <th>y</th>
+      <td><p>A numeric vector of shape (N, 1), where N represents the number of data points.
+It contains the N response values from the experimental data.</p></td>
+    </tr>
+    <tr>
+      <th>alpha</th>
+      <td><p>A numeric scalor that specifies the confidence level, 1 - alpha, of the CR.
+Its value must be set between 0 and 1.
+Default is 0.05.</p></td>
+    </tr>
+    <tr>
+      <th>num_boot</th>
+      <td><p>An integer scalor that specifies how many times the bootstrap operation
+will be repeated to construct the CR.
+Default is 200.</p></td>
+    </tr>
+    <tr>
+      <th>RSM</th>
+      <td><p>A character string to choose the type of the RSM, 
+which must be either "quad", "tps", or "poly".
+"quad" fits the experimental data to a quadratic polynomial model
+with 2 regressors;
+"tps" fits the experimental data to a TPS model with 2 regressors;
+"poly" fits the experimental data to a quadratic or cubic polynomial model 
+(specified by the degree argument) with 2 - 5 regressors.
+For all model types, 
+the optima of the response surface will be constrained by the bounds of the
+regressors (specified by the constr_lb and constr_ub arguments).
+For "quad" and "tps" models, 
+the optima of the response surface can be further constrained to lie inside 
+a triangle defined by the original (0,0) and two other vertices
+(specified by the constr_triangle, constr_vertex_1, and constr_vertex_2 
+arguments).</p></td>
+    </tr>
+    <tr>
+      <th>lambda</th>
+      <td><p>A numeric scalor that specifies the value of the penalty parameter 
+if RSM is "tps". 
+Default is 0.04.</p></td>
+    </tr>
+    <tr>
+      <th>degree</th>
+      <td><p>A integer scalor that specifies the degree of the polynomial model
+if RSM is "poly". 
+It can be set to 2 or 3.
+Default is 2.</p></td>
+    </tr>
+    <tr>
+      <th>maximization</th>
+      <td><p>A boolean scalor.
+If TRUE, the function returns a CR on the maxima of the response surface;
+if FALSE, the function returns a CR on the minima of the response surface.
+Default is TRUE.</p></td>
+    </tr>
+    <tr>
+      <th>constr_lb</th>
+      <td><p>A numeric vector of shape (1, k) that specifies the lower bound constraint
+for each of the k regressors.</p></td>
+    </tr>
+    <tr>
+      <th>constr_ub</th>
+      <td><p>A numeric vector of shape (1, k) that specifies the upper bound constraint
+for each of the k regressors.</p></td>
+    </tr>
+    <tr>
+      <th>constr_triangle</th>
+      <td><p>A boolean scalor.
+If TRUE, the optima of the RSM will also be constrained to lie inside
+a triangle defined by the original (0,0) and two other vertices.
+Note only the "quad" model and the "tps" model have this option.
+Dafault is FALSE.</p></td>
+    </tr>
+    <tr>
+      <th>constr_vertex_1</th>
+      <td><p>A numeric vector of shape (1, 2) that specifies one of the other two 
+vertices if constr_triangle is TRUE. 
+(NOTE: vertices numbered clockwise)</p></td>
+    </tr>
+    <tr>
+      <th>constr_vertex_2</th>
+      <td><p>A numeric vector of shape (1, 2) that specifies one of the other two 
+vertices if constr_triangle is TRUE. 
+(NOTE: vertices numbered clockwise)</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>A boolean scalor.
+If TRUE, function status will be printed.
+Default is FALSE.</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Del Castillo E, Chen P, Meyers A, Hunt J, Rapkin J (2019).
+&#8220;Confidence regions for the location of response surface optima: the R package OptimaRegion.&#8221;</p>
+    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
@@ -133,7 +262,8 @@
 <span class='co'># "thin line"</span>
 <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>OptRegion</span>(
   <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>Drug</span>[, <span class='fl'>1</span>:<span class='fl'>2</span>], <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>Drug</span>[, <span class='fl'>3</span>], <span class='kw'>B</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>LB</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>0</span>), <span class='kw'>UB</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.08</span>, <span class='fl'>11</span>), <span class='kw'>RSM</span> <span class='kw'>=</span> <span class='st'>"quad"</span>,
-  <span class='kw'>triangularRegion</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>vertex1</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.02</span>, <span class='fl'>11</span>), <span class='kw'>vertex2</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.08</span>, <span class='fl'>1.8</span>))
+  <span class='kw'>triangularRegion</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>vertex1</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.02</span>, <span class='fl'>11</span>), <span class='kw'>vertex2</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.08</span>, <span class='fl'>1.8</span>)
+)
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>out</span>, <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='st'>"Component 1 (mg.)"</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='st'>"Component 2 (mg.)"</span>)
 
 <span class='co'># Example 3: randomly generated 2-variable response surface data</span>
@@ -152,28 +282,34 @@
 <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>OptRegion</span>(
   <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>Drug</span>[, <span class='fl'>1</span>:<span class='fl'>2</span>], <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>Drug</span>[, <span class='fl'>3</span>], <span class='kw'>B</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
   <span class='kw'>LB</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>0</span>), <span class='kw'>UB</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.08</span>, <span class='fl'>11</span>), <span class='kw'>RSM</span> <span class='kw'>=</span> <span class='st'>"tps"</span>,
-  <span class='kw'>triangularRegion</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>vertex1</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.02</span>, <span class='fl'>11</span>), <span class='kw'>vertex2</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.08</span>, <span class='fl'>1.8</span>))
+  <span class='kw'>triangularRegion</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>vertex1</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.02</span>, <span class='fl'>11</span>), <span class='kw'>vertex2</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.08</span>, <span class='fl'>1.8</span>)
+)
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>out</span>, <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='st'>"Component 1 (mg.)"</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='st'>"Component 2 (mg.)"</span>)
 
 <span class='co'># Example 5: run GloptiPolyRegion on a quadratic, 3 vars example</span>
 <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>OptRegion</span>(
   <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>quad_3D</span>[, <span class='fl'>1</span>:<span class='fl'>3</span>], <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>quad_3D</span>[, <span class='fl'>4</span>], <span class='kw'>B</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
   <span class='kw'>LB</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>2</span>, -<span class='fl'>2</span>, -<span class='fl'>2</span>), <span class='kw'>UB</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>2</span>), <span class='kw'>RSM</span> <span class='kw'>=</span> <span class='st'>"poly"</span>, <span class='kw'>degree</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>maximization</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+  <span class='kw'>maximization</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+)
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>out</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x1"</span>, <span class='st'>"x2"</span>, <span class='st'>"x3"</span>))
 
 <span class='co'># Example 6: run GloptiPolyRegion on a cubic, 5 vars example</span>
 <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>OptRegion</span>(
   <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>cubic_5D</span>$<span class='no'>design_matrix</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>cubic_5D</span>$<span class='no'>response</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='fl'>200</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
   <span class='kw'>LB</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0</span>, <span class='fl'>5</span>), <span class='kw'>UB</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>5</span>, <span class='fl'>5</span>), <span class='kw'>RSM</span> <span class='kw'>=</span> <span class='st'>"poly"</span>, <span class='kw'>degree</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-  <span class='kw'>maximization</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+  <span class='kw'>maximization</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+)
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>out</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x1"</span>, <span class='st'>"x2"</span>, <span class='st'>"x3"</span>, <span class='st'>"x4"</span>, <span class='st'>"x5"</span>))
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-            
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#references">References</a></li>
+      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
