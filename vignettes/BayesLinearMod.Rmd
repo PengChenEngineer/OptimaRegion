@@ -1,0 +1,324 @@
+---
+title: "Credible Regions on Linear Models"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{my-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse)
+library(mvtnorm)
+library(lhs)
+library(nloptr)
+library(parallel)
+library(microbenchmark)
+library(grDevices)
+library(keras)
+```
+
+```{r}
+# only for development
+n_post <- 2000
+constr_lb <- c(-2, -2)
+constr_ub <- c(2, 2)
+```
+
+### 0. Simulate Experimental Data
+
+#### Quadratic Polynomials in 2 Factors
+```{r}
+quad_2 <- function(x, beta) {
+  beta[1] + beta[2] * x[1] + beta[3] * x[2] +
+    beta[4] * x[1]^2 + beta[5] * x[2]^2 + beta[6] * x[1] * x[2]
+}
+```
+
+```{r}
+quad_2_grad <- function(x, beta) {
+  rbind(
+    beta[2] + 2 * beta[4] * x[1] + beta[6] * x[2],
+    beta[3] + 2 * beta[5] * x[2] + beta[6] * x[1]
+  )
+}
+```
+
+#### True Function
+```{r}
+# only for development 
+beta_true <- matrix(c(72, -11.78, 0.74, -7.25, -7.55, -4.85), nrow = 6)
+```
+
+```{r eval=FALSE, include=FALSE}
+beta2stat_pt <- function(beta) {
+  b <- matrix(c(beta[2], beta[3]), nrow = 2)
+  B <- matrix(c(
+    beta[4], beta[6] / 2,
+    beta[6] / 2, beta[5]
+  ), nrow = 2)
+  -solve(B, b) / 2
+}
+beta2stat_pt(beta_true) # true optima
+```
+
+#### Noisy Observations on the True Function
+
+```{r}
+# only for development
+sim_obs_quad_2 <- function(n, sd_noise, beta) {
+  design <- cbind(
+    x1 = runif(n, constr_lb[1], constr_ub[1]), x2 = runif(n, constr_lb[2], constr_ub[2]))
+  y <- apply(design, 1, quad_2, beta) %>%
+    as.matrix(nrow = n) + rnorm(n, mean = 0, sd = sd_noise)
+  list(design = design, y = y)
+} 
+```
+
+```{r}
+# only for development
+c(design, y) %<-% sim_obs_quad_2(n = 100, sd_noise = 8, beta = beta_true)
+rm("beta_true", "sim_obs_quad_2")
+```
+
+### 1. Draw Posterior Samples $\{\beta\}$
+
+#### Model
+$$
+  \mathbf{y} \,|\, \mathbf{\beta}, \sigma^2, \mathbf{X} 
+  \sim N(\mathbf{X\beta}, \sigma^2 \mathbf{I})
+$$
+
+#### Prior 
+$$
+p(\mathbf{\beta}, \sigma^2, \,|\, \mathbf{X}) \propto \frac{1}{\sigma^2}
+$$
+
+#### Posterior
+$$
+\mathbf{\beta} \,|\, \mathbf{y}, \mathbf{X} 
+\sim t_{n-p} \left(\hat{\mathbf{\beta}}, \, s^2(\mathbf{X}^T\mathbf{X})^{-1}\right)
+$$
+
+where 
+$$
+\hat{\mathbf{\beta}} = (\mathbf{X}^T\mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}
+$$
+$$
+s^2 = \frac{\Vert \mathbf{y} - \mathbf{X}\hat{\mathbf{\beta}} \Vert^2}{n-p}
+$$
+```{r}
+draw_post_quad_2 <- function() {
+  X <- as.data.frame(design) %>%
+    pmap_df(~ tibble(
+      intercept = 1, x1 = ..1, x2 = ..2,
+      x1x1 = ..1^2, x2x2 = ..2^2, x1x2 = ..1 * ..2
+    )) %>%
+    as.matrix(nrow = nrow(design)) # assume full quadratic
+  beta_hat <- solve(crossprod(X), crossprod(X, y))
+  s2 <- crossprod(y - X %*% beta_hat) / (nrow(design) - ncol(X))
+  betas_post <- mvtnorm::rmvt(
+    n = n_post, sigma = as.numeric(s2) * solve(crossprod(X)), df = nrow(design) - ncol(X),
+    delta = beta_hat
+  ) %>% t() # use argument delta instead of mu to avoid fallacy
+  list(betas_post = betas_post, beta_hat = beta_hat)
+}
+```
+
+```{r}
+# test "draw_post_quad_2"
+c(betas_post, beta_hat) %<-% draw_post_quad_2()
+```
+
+### 2. Construct the Map $h(\beta)$
+
+$$
+  x^* = h(\beta) = \underset{x \in R}{\arg\max} \, f(x; \beta )
+$$
+```{r}
+generate_initial_solutions <- function() {
+  lhs::geneticLHS(n = 5, k = 2, criterium = "Maximin") %>%
+    sweep(MARGIN = 2, STATS = constr_ub - constr_lb, FUN = "*") %>%
+    sweep(MARGIN = 2, STATS = constr_lb, FUN = "+")
+}
+```
+
+```{r}
+# test "generate_initial_solutions"
+x0s <- generate_initial_solutions()
+```
+
+```{r eval=FALSE, include=FALSE}
+# Optimize the Posterior Mean Model from a Single Initial Solution
+res <- nloptr(
+  x0 = x0s[5, ],
+  eval_f = function(x) -quad_2(x, beta_hat),
+  eval_grad_f = function(x) -quad_2_grad(x, beta_hat),
+  lb = constr_lb, ub = constr_ub,
+  opts = list("algorithm" = "NLOPT_LD_MMA", print_level = 0, xtol_rel = 1e-03)
+)
+res$solution
+```
+
+```{r eval=FALSE, include=FALSE}
+# Optimize from Multiple Initial Solutions
+nloptr_quad_2 <- purrr::partial(nloptr::nloptr,
+  eval_f = function(x) -quad_2(x, beta_hat),
+  eval_grad_f = function(x) -quad_2_grad(x, beta_hat),
+  lb = constr_lb, ub = constr_ub,
+  opts = list("algorithm" = "NLOPT_LD_MMA", print_level = 0, xtol_rel = 1e-03)
+)
+opt <- lapply(1:nrow(x0s), function(i) x0s[i, ]) %>%
+  map(~ nloptr_quad_2(.x)) %>%
+  map_df(~ tibble(
+    x1 = .x$solution[1], x2 = .x$solution[2], objective = -.x$objective
+  )) %>%
+  top_n(1, objective) %>%
+  select(c(x1, x2)) %>%
+  as.matrix()
+opt
+```
+
+```{r}
+beta2opt <- function(beta) {
+  nloptr_quad_2 <- purrr::partial(nloptr::nloptr,
+    eval_f = function(x) -quad_2(x, beta),
+    eval_grad_f = function(x) -quad_2_grad(x, beta),
+    lb = constr_lb, ub = constr_ub,
+    opts = list("algorithm" = "NLOPT_LD_MMA", print_level = 0, xtol_rel = 1e-03)
+  )
+  lapply(1:nrow(x0s), function(i) x0s[i, ]) %>%
+    map(~ nloptr_quad_2(.x)) %>%
+    map_df(~ tibble(
+      x1 = .x$solution[1], x2 = .x$solution[2], objective = -.x$objective
+    )) %>%
+    top_n(1, objective) %>%
+    select(c(x1, x2)) 
+}
+```
+
+```{r}
+# test "map_beta2opt"
+optimum_mean <- beta2opt(beta = beta_hat)
+```
+
+### 3. Compute Posterior Optima $\{h(\beta)\}$
+
+#### Sequential implementation
+
+```{r}
+beta2opt_apply <- function() {
+  apply(betas_post, 2, beta2opt) %>%
+    map_df(~ tibble(x1 = .x$x1, x2 = .x$x2))
+}
+```
+
+```{r}
+# only for development 
+# optima_post <- beta2opt_apply()
+```
+
+#### Parallel implementation
+
+```{r}
+beta2opt_parApply <- function() {
+  cl <- makeCluster(detectCores(logical = FALSE) - 1)
+  clusterEvalQ(cl, {
+    library(tidyverse)
+    library(nloptr)
+  })
+  clusterExport(cl, c("x0s", "quad_2", "quad_2_grad", "constr_lb", "constr_ub"))
+  optima_post <- parApply(cl, betas_post, 2, beta2opt) %>%
+    map_df(~ tibble(x1 = .x$x1, x2 = .x$x2))
+  stopCluster(cl)
+  optima_post
+}
+```
+
+```{r}
+# only for development 
+# optima_post <- beta2opt_parApply()
+```
+
+#### Benchmark different implementations
+
+```{r}
+# only for development 
+# microbenchmark(m1 = beta2opt_parApply(), m2 = beta2opt_apply(), times = 1)
+```
+
+### 4. Main Function
+
+```{r}
+BayesOptRegionQuad <- function(design, y, n_post, constr_lb, constr_ub, parallel = TRUE) {
+  # 1. draw posterior betas:
+  c(betas_post, beta_hat) %<-% draw_post_quad_2()
+  # 2. construct the map from beta to optimum
+  ## initial solutions:
+  x0s <- generate_initial_solutions()
+  ## objective function: see "quad_2"
+  ## gradient of objective function: see "quad_2_grad"
+  ## the map: see "beta2opt"
+  # 3. map posterior betas to optima
+  if(parallel) {
+    optima_post <- beta2opt_parApply()
+  } else{
+    optima_post <- beta2opt_apply()
+  }
+  optimum_mean <- beta2opt(beta_hat) 
+  # 4. return
+  structure(
+    list(
+      optima_post = optima_post, optimum_mean = optimum_mean,
+      constr_lb = constr_lb, constr_ub = constr_ub
+    ),
+    class = "bayescrquad"
+  )
+}
+```
+
+```{r}
+plot.bayescrquad <- function(res) {
+  ids <- list(id = grDevices::chull(res$optima_post)) %>%
+    map(~ c(.x, .x[1])) %>%
+    unlist()
+  plot(
+    NULL, type = "n", xlab = "x1", ylab = "x2",
+    xlim = c(constr_lb[1], constr_ub[1]), ylim = c(constr_lb[2], constr_ub[2])
+  )
+  lines(res$optima_post[ids, ], col = "black")
+  points(res$optimum_mean[1], res$optimum_mean[2], col = "red", cex = 1, pch = 16)
+}
+```
+
+```{r}
+# only for development
+res <- BayesOptRegionQuad(
+  design = design, y = y, n_post = n_post, constr_lb = constr_lb, constr_ub = constr_ub
+)
+```
+
+```{r fig.align="center", fig.width=5, fig.height=5}
+# only for development
+plot(res)
+```
+
+```{r}
+# # only for development
+# BayesOptRegionQuad_benchmark <- purrr::partial(
+#   BayesOptRegionQuad, design = design, y = y, n_post = n_post, constr_lb = constr_lb, constr_ub = constr_ub
+# )
+# microbenchmark(
+#   m1 = BayesOptRegionQuad_benchmark(parallel = TRUE), 
+#   m2 = BayesOptRegionQuad_benchmark(parallel = FALSE), 
+#   times = 1
+# )
+```
+
