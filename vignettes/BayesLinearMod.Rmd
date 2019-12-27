@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r include=FALSE}
 library(tidyverse)
 library(mvtnorm)
 library(lhs)
@@ -23,13 +23,16 @@ library(parallel)
 library(microbenchmark)
 library(grDevices)
 library(keras)
+library(geometry)
 ```
 
 ```{r}
 # only for development
-n_post <- 2000
-constr_lb <- c(-2, -2)
-constr_ub <- c(2, 2)
+n_rep <- 5
+sd_noise <- 2
+n_post <- 200
+constr_lb <- rep(-sqrt(2), 2)
+constr_ub <- rep(sqrt(2), 2)
 ```
 
 ### 0. Simulate Experimental Data
@@ -54,7 +57,16 @@ quad_2_grad <- function(x, beta) {
 #### True Function
 ```{r}
 # only for development 
-beta_true <- matrix(c(72, -11.78, 0.74, -7.25, -7.55, -4.85), nrow = 6)
+# beta_true <- matrix(c(72, -11.78, 0.74, -7.25, -7.55, -4.85), nrow = 6)
+# optimum_true <- cbind(-0.9285643, 0.3472541)
+beta_true <- matrix(c(90.79, -1.095, -1.045, -2.781, -2.524, -0.775), nrow = 6)
+optimum_true <- cbind(-0.1716998, -0.1806523)
+non_optima <- tibble(
+  x1 = c(1.2, 1.5, 0.5, 0.2, 2, rep(1, 5)),
+  x2 = c(rep(1, 5), 1.2, 1.5, 0.5, 0.2, 2)
+) %>% 
+  pmap_df(~ tibble(x1 = ..1 * optimum_true[1], x2 = ..2 * optimum_true[2])) %>%
+  as.matrix()
 ```
 
 ```{r eval=FALSE, include=FALSE}
@@ -66,26 +78,36 @@ beta2stat_pt <- function(beta) {
   ), nrow = 2)
   -solve(B, b) / 2
 }
-beta2stat_pt(beta_true) # true optima
+beta2stat_pt(beta_true)
 ```
 
-#### Noisy Observations on the True Function
-
+### Experimental Design
 ```{r}
 # only for development
-sim_obs_quad_2 <- function(n, sd_noise, beta) {
-  design <- cbind(
-    x1 = runif(n, constr_lb[1], constr_ub[1]), x2 = runif(n, constr_lb[2], constr_ub[2]))
-  y <- apply(design, 1, quad_2, beta) %>%
-    as.matrix(nrow = n) + rnorm(n, mean = 0, sd = sd_noise)
-  list(design = design, y = y)
-} 
+# design <- cbind(
+#   x1 = runif(n, constr_lb[1], constr_ub[1]), x2 = runif(n, constr_lb[2], constr_ub[2])
+# )
+design_no_rep <- cbind(
+  x1 = c(-1, 1, -1, 1, -sqrt(2), sqrt(2), rep(0, 5)),
+  x2 = c(-1, -1, 1, 1, 0, 0, -sqrt(2), sqrt(2), rep(0, 3))
+) %>% 
+  rbind(
+    cbind(
+      x1 = runif(11, constr_lb[1], constr_ub[1]), 
+      x2 = runif(11, constr_lb[2], constr_ub[2])
+    )
+  )
+design <- design_no_rep[rep(1:nrow(design_no_rep), n_rep), ]
 ```
 
+
+#### Simulated Observations under IID Noises
+
 ```{r}
-# only for development
-c(design, y) %<-% sim_obs_quad_2(n = 100, sd_noise = 8, beta = beta_true)
-rm("beta_true", "sim_obs_quad_2")
+# only for development 
+f <- apply(design, 1, quad_2, beta_true) %>% 
+  as.matrix(nrow = nrow(design))
+y <- f + rnorm(n = nrow(design) , mean = 0, sd = sd_noise) 
 ```
 
 ### 1. Draw Posterior Samples $\{\beta\}$
@@ -115,7 +137,7 @@ $$
 s^2 = \frac{\Vert \mathbf{y} - \mathbf{X}\hat{\mathbf{\beta}} \Vert^2}{n-p}
 $$
 ```{r}
-draw_post_quad_2 <- function() {
+draw_post_quad_2 <- function(design, y, n_post) {
   X <- as.data.frame(design) %>%
     pmap_df(~ tibble(
       intercept = 1, x1 = ..1, x2 = ..2,
@@ -134,7 +156,7 @@ draw_post_quad_2 <- function() {
 
 ```{r}
 # test "draw_post_quad_2"
-c(betas_post, beta_hat) %<-% draw_post_quad_2()
+c(betas_post, beta_hat) %<-% draw_post_quad_2(design = design, y = y, n_post = n_post)
 ```
 
 ### 2. Construct the Map $h(\beta)$
@@ -181,13 +203,13 @@ opt <- lapply(1:nrow(x0s), function(i) x0s[i, ]) %>%
     x1 = .x$solution[1], x2 = .x$solution[2], objective = -.x$objective
   )) %>%
   top_n(1, objective) %>%
-  select(c(x1, x2)) %>%
-  as.matrix()
+  distinct() %>%
+  select(c(x1, x2))
 opt
 ```
 
 ```{r}
-beta2opt <- function(beta) {
+beta2opt <- function(beta, constr_lb, constr_ub, x0s) {
   nloptr_quad_2 <- purrr::partial(nloptr::nloptr,
     eval_f = function(x) -quad_2(x, beta),
     eval_grad_f = function(x) -quad_2_grad(x, beta),
@@ -200,13 +222,16 @@ beta2opt <- function(beta) {
       x1 = .x$solution[1], x2 = .x$solution[2], objective = -.x$objective
     )) %>%
     top_n(1, objective) %>%
+    distinct() %>%
     select(c(x1, x2)) 
 }
 ```
 
 ```{r}
 # test "map_beta2opt"
-optimum_mean <- beta2opt(beta = beta_hat)
+optimum_mean <- beta2opt(
+  beta = beta_hat, constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s
+)
 ```
 
 ### 3. Compute Posterior Optima $\{h(\beta)\}$
@@ -214,37 +239,42 @@ optimum_mean <- beta2opt(beta = beta_hat)
 #### Sequential implementation
 
 ```{r}
-beta2opt_apply <- function() {
-  apply(betas_post, 2, beta2opt) %>%
-    map_df(~ tibble(x1 = .x$x1, x2 = .x$x2))
+beta2opt_apply <- function(betas_post, constr_lb, constr_ub, x0s) {
+  apply(betas_post, 2, beta2opt, constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s) %>%
+    map_df(~ tibble(x1 = .x$x1, x2 = .x$x2)) %>%
+    as.matrix()
 }
 ```
 
 ```{r}
-# only for development 
-# optima_post <- beta2opt_apply()
+# # only for development 
+# optima_post <- beta2opt_apply(betas_post = betas_post, 
+#                               constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s)
 ```
 
 #### Parallel implementation
 
 ```{r}
-beta2opt_parApply <- function() {
+beta2opt_parApply <- function(betas_post, constr_lb, constr_ub, x0s) {
   cl <- makeCluster(detectCores(logical = FALSE) - 1)
   clusterEvalQ(cl, {
     library(tidyverse)
     library(nloptr)
   })
   clusterExport(cl, c("x0s", "quad_2", "quad_2_grad", "constr_lb", "constr_ub"))
-  optima_post <- parApply(cl, betas_post, 2, beta2opt) %>%
-    map_df(~ tibble(x1 = .x$x1, x2 = .x$x2))
+  optima_post <- parApply(cl, betas_post, 2, beta2opt,
+                          constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s) %>%
+    map_df(~ tibble(x1 = .x$x1, x2 = .x$x2)) %>%
+    as.matrix()
   stopCluster(cl)
   optima_post
 }
 ```
 
 ```{r}
-# only for development 
-# optima_post <- beta2opt_parApply()
+# # only for development 
+# optima_post <- beta2opt_parApply(betas_post = betas_post, 
+#                                  constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s)
 ```
 
 #### Benchmark different implementations
@@ -257,22 +287,27 @@ beta2opt_parApply <- function() {
 ### 4. Main Function
 
 ```{r}
-BayesOptRegionQuad <- function(design, y, n_post, constr_lb, constr_ub, parallel = TRUE) {
+BayesOptRegionQuad <- function(design, y, n_post, constr_lb, constr_ub, x0s, parallel = TRUE) {
   # 1. draw posterior betas:
-  c(betas_post, beta_hat) %<-% draw_post_quad_2()
+  c(betas_post, beta_hat) %<-% draw_post_quad_2(design = design, y = y, n_post = n_post)
   # 2. construct the map from beta to optimum
-  ## initial solutions:
-  x0s <- generate_initial_solutions()
+  ## initial solutions: see "generate_initial_solutions"
   ## objective function: see "quad_2"
   ## gradient of objective function: see "quad_2_grad"
   ## the map: see "beta2opt"
   # 3. map posterior betas to optima
   if(parallel) {
-    optima_post <- beta2opt_parApply()
+    optima_post <- beta2opt_parApply(
+      betas_post = betas_post, constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s
+    )
   } else{
-    optima_post <- beta2opt_apply()
+    optima_post <- beta2opt_apply(
+      betas_post = betas_post, constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s
+    )
   }
-  optimum_mean <- beta2opt(beta_hat) 
+  optimum_mean <- beta2opt(
+    beta = beta_hat, constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s
+  ) 
   # 4. return
   structure(
     list(
@@ -301,11 +336,12 @@ plot.bayescrquad <- function(res) {
 ```{r}
 # only for development
 res <- BayesOptRegionQuad(
-  design = design, y = y, n_post = n_post, constr_lb = constr_lb, constr_ub = constr_ub
+  design = design, y = y, n_post = n_post, 
+  constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s
 )
 ```
 
-```{r fig.align="center", fig.width=5, fig.height=5}
+```{r fig.align="center", fig.height=5, fig.width=5}
 # only for development
 plot(res)
 ```
@@ -316,9 +352,191 @@ plot(res)
 #   BayesOptRegionQuad, design = design, y = y, n_post = n_post, constr_lb = constr_lb, constr_ub = constr_ub
 # )
 # microbenchmark(
-#   m1 = BayesOptRegionQuad_benchmark(parallel = TRUE), 
-#   m2 = BayesOptRegionQuad_benchmark(parallel = FALSE), 
+#   m1 = BayesOptRegionQuad_benchmark(parallel = TRUE),
+#   m2 = BayesOptRegionQuad_benchmark(parallel = FALSE),
 #   times = 1
 # )
 ```
+
+### 5. Coverage Analysis
+
+#### Test whether the CR contains a specific point
+```{r}
+inCR <- function(new_point, old_points) {
+  old_points <- as.matrix(old_points)
+  dim(new_point) <- c(1, 2)
+  # indices of the points lying the convex hull
+  coords <- grDevices::chull(old_points)
+  # area of the convex hull
+  CR_area <- geometry::polyarea(old_points[coords, 1], old_points[coords, 2])
+  # add the new point to the set and re-calculate the area
+  r <- rbind(old_points, new_point)
+  newCH_coords <- chull(r)
+  new_area <- geometry::polyarea(r[newCH_coords, 1], r[newCH_coords, 2])
+  # tell if the new point is in the original convex hull by comparing the areas
+  if (new_area > CR_area) FALSE else TRUE
+}
+```
+```{r eval=FALSE, include=FALSE}
+# test "inCR"
+inCR(old_points = res$optima_post, new_point = optimum_true)
+```
+
+#### Coverage result from a single CR run
+```{r}
+cover_one_time <- function(i, design, f, sd_noise, n_post, constr_lb, constr_ub, x0s,
+                           optimum_true, non_optima) {
+  print(paste(i, "th CR with", "sd_noise =", sd_noise, "and n_rep =", nrow(design) / 22))
+  res <- BayesOptRegionQuad(
+    design = design,
+    y = f + rnorm(n = nrow(design), mean = 0, sd = sd_noise),  
+    n_post = n_post, constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s, parallel = FALSE
+  )
+  opt_in <- inCR(new_point = optimum_true, old_points = res$optima_post)
+  indices <- grDevices::chull(res$optima_post)
+  area <- geometry::polyarea(res$optima_post[indices, 1], res$optima_post[indices, 2])
+  non_opt_in <- apply(X = non_optima, MARGIN = 1, FUN = inCR, old_points = res$optima_post)
+  list(opt_in = opt_in, area = area, non_opt_in = non_opt_in)
+}
+```
+```{r eval=FALSE, include=FALSE}
+# only for development
+res_cover_one_time <- cover_one_time(
+  i = 1, 
+  design = design, f = f, sd_noise = sd_noise, 
+  n_post = n_post, constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s,
+  optimum_true = optimum_true, non_optima = non_optima
+)
+```
+
+#### Coverage result from multiple CR runs
+```{r}
+cover_multiple_time <- function(sd_noise, n_rep, n_post, n_cov, 
+                                design_no_rep, beta_true, constr_lb, constr_ub, x0s,
+                                optimum_true, non_optima) {
+  design <- design_no_rep[rep(1:nrow(design_no_rep), n_rep), ]
+  f <- apply(design, 1, quad_2, beta_true) %>% 
+    as.matrix(nrow = nrow(design))
+  cl <- makeCluster(detectCores(logical = FALSE) - 1, outfile = "")
+  clusterEvalQ(cl, {
+    library(tidyverse)
+    library(nloptr)
+    library(keras)
+  })
+  clusterExport(
+    cl, c(
+      "cover_one_time",
+      "quad_2", 
+      "BayesOptRegionQuad",
+      "draw_post_quad_2", "quad_2_grad", "beta2opt", "beta2opt_apply", "beta2opt_parApply",
+      "inCR"
+    )
+  )
+  res <- clusterApply(
+    cl = cl, x = 1:n_cov, fun = cover_one_time,
+    design = design, f = f, sd_noise = sd_noise, 
+    n_post = n_post, constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s,
+    optimum_true = optimum_true, non_optima = non_optima
+  )
+  stopCluster(cl)
+  res %>%
+    map_df(~ tibble(
+    opt_in = .x$opt_in,
+    area = .x$area,
+    non_opt_in_1 = .x$non_opt_in[1],
+    non_opt_in_2 = .x$non_opt_in[2],
+    non_opt_in_3 = .x$non_opt_in[3],
+    non_opt_in_4 = .x$non_opt_in[4],
+    non_opt_in_5 = .x$non_opt_in[5],
+    non_opt_in_6 = .x$non_opt_in[6],
+    non_opt_in_7 = .x$non_opt_in[7],
+    non_opt_in_8 = .x$non_opt_in[8],
+    non_opt_in_9 = .x$non_opt_in[9],
+    non_opt_in_10 = .x$non_opt_in[10],
+  )) %>%
+  mutate(area_sd = sd(area)) %>%
+  select(opt_in, area, area_sd, 3:12) %>%
+  map(mean) %>%
+  set_names(
+    c(
+      "opt_coverage", "CR_area_mean", "CR_area_sd",
+      unlist(lapply(X = 1:10, FUN = function(i) paste("non_opt_coverage_", i, sep = "")))
+    )
+  ) %>%
+  unlist() %>%
+  as.matrix(nrow = 13)
+}
+```
+
+```{r}
+rm(
+  list = c(
+    "beta_hat", "betas_post", "design", "f", "optimum_mean", "res", "y",
+    "n_post", "n_rep", "sd_noise"
+  )
+)
+```
+
+```{r}
+# coverage_analysis <- cover_multiple_time(
+#   sd_noise = 2, n_rep = 10, n_post = 200, n_cov = 10, 
+#   design_no_rep = design_no_rep, beta_true = beta_true,
+#   constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s,
+#   optimum_true = optimum_true, non_optima = non_optima
+# )
+```
+
+```{r}
+# coverage_analysis
+```
+
+#### Parameters for the coverage analysis
+```{r}
+param_coverage_analysis <- tibble(
+  sd_noise =  c(rep(2, 3), rep(5, 3), rep(10, 3)),
+  n_rep = rep(c(100, 200, 500), 3)
+)
+param_coverage_analysis
+```
+
+```{r}
+# coverage_analysis <- purrr::partial(
+#   cover_multiple_time,
+#   n_post = 1e3, n_cov = 1e3,
+#   design_no_rep = design_no_rep, beta_true = beta_true,
+#   constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s,
+#   optimum_true = optimum_true, non_optima = non_optima
+# )
+# run_time <- system.time(
+#   coverage_analyses <- param_coverage_analysis %>%
+#     pmap(~ coverage_analysis(sd_noise = ..1, n_rep = ..2)) %>%
+#     unlist() %>%
+#     matrix(nrow = 9, byrow = TRUE) %>%
+#     as_tibble() %>%
+#     set_names(
+#       c(
+#         "coverage", "area_mean", "area_sd",
+#         unlist(lapply(X = 1:10, FUN = function(i) paste("bias_", i, sep = "")))
+#       )
+#     ) %>%
+#     cbind(param_coverage_analysis) %>%
+#     select(14:15, 1:3, 4:13)
+# )
+# save(coverage_analyses, file = "coverage_analyses_1e3_1e3.RData")
+# save(run_time, file = "run_time_1e3_1e3.RData")
+```
+
+```{r include=FALSE}
+load("~/Dropbox/P/PennState/ESAMLab/OptimaRegion-Package/OptimaRegion/vignettes/run_time_1e3_1e3.RData")
+load("~/Dropbox/P/PennState/ESAMLab/OptimaRegion-Package/OptimaRegion/vignettes/coverage_analyses_1e3_1e3.RData")
+```
+
+```{r}
+run_time / 3600
+```
+
+```{r}
+coverage_analyses
+```
+
 
