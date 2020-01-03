@@ -1,5 +1,5 @@
 ---
-title: "Credible Regions on Linear Models"
+title: "Credible Regions on RS Optima"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{my-vignette}
@@ -10,9 +10,14 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.height = 3,
+  fig.width = 6,
+  out.extra = 'style = "border-color:white"'
 )
 ```
+
+## 1. Credible Regions on Linear Models
 
 ```{r include=FALSE}
 library(tidyverse)
@@ -24,6 +29,10 @@ library(microbenchmark)
 library(grDevices)
 library(keras)
 library(geometry)
+library(rjags)
+library(fields)
+library(gridExtra)
+library(MASS)
 ```
 
 ```{r}
@@ -35,7 +44,7 @@ constr_lb <- rep(-sqrt(2), 2)
 constr_ub <- rep(sqrt(2), 2)
 ```
 
-### 0. Simulate Experimental Data
+### 1.0 Simulate Experimental Data
 
 #### Quadratic Polynomials in 2 Factors
 ```{r}
@@ -97,6 +106,9 @@ design_no_rep <- cbind(
       x2 = runif(11, constr_lb[2], constr_ub[2])
     )
   )
+```
+
+```{r}
 design <- design_no_rep[rep(1:nrow(design_no_rep), n_rep), ]
 ```
 
@@ -110,7 +122,7 @@ f <- apply(design, 1, quad_2, beta_true) %>%
 y <- f + rnorm(n = nrow(design) , mean = 0, sd = sd_noise) 
 ```
 
-### 1. Draw Posterior Samples $\{\beta\}$
+### 1.1 Draw Posterior Samples $\{\beta\}$
 
 #### Model
 $$
@@ -155,11 +167,11 @@ draw_post_quad_2 <- function(design, y, n_post) {
 ```
 
 ```{r}
-# test "draw_post_quad_2"
+# only for development
 c(betas_post, beta_hat) %<-% draw_post_quad_2(design = design, y = y, n_post = n_post)
 ```
 
-### 2. Construct the Map $h(\beta)$
+### 1.2 Construct the Map $h(\beta)$
 
 $$
   x^* = h(\beta) = \underset{x \in R}{\arg\max} \, f(x; \beta )
@@ -173,7 +185,6 @@ generate_initial_solutions <- function() {
 ```
 
 ```{r}
-# test "generate_initial_solutions"
 x0s <- generate_initial_solutions()
 ```
 
@@ -198,7 +209,7 @@ nloptr_quad_2 <- purrr::partial(nloptr::nloptr,
   opts = list("algorithm" = "NLOPT_LD_MMA", print_level = 0, xtol_rel = 1e-03)
 )
 opt <- lapply(1:nrow(x0s), function(i) x0s[i, ]) %>%
-  map(~ nloptr_quad_2(.x)) %>%
+  lapply(function(i) nloptr_quad_2(x0 = i)) %>%
   map_df(~ tibble(
     x1 = .x$solution[1], x2 = .x$solution[2], objective = -.x$objective
   )) %>%
@@ -217,24 +228,24 @@ beta2opt <- function(beta, constr_lb, constr_ub, x0s) {
     opts = list("algorithm" = "NLOPT_LD_MMA", print_level = 0, xtol_rel = 1e-03)
   )
   lapply(1:nrow(x0s), function(i) x0s[i, ]) %>%
-    map(~ nloptr_quad_2(.x)) %>%
+    purrr::map(function(i) nloptr_quad_2(x0 = i)) %>%
     map_df(~ tibble(
       x1 = .x$solution[1], x2 = .x$solution[2], objective = -.x$objective
     )) %>%
     top_n(1, objective) %>%
     distinct() %>%
-    select(c(x1, x2)) 
+    dplyr::select(x1, x2) 
 }
 ```
 
 ```{r}
-# test "map_beta2opt"
+# only for development
 optimum_mean <- beta2opt(
   beta = beta_hat, constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s
 )
 ```
 
-### 3. Compute Posterior Optima $\{h(\beta)\}$
+### 1.3 Compute Posterior Optima $\{h(\beta)\}$
 
 #### Sequential implementation
 
@@ -246,10 +257,10 @@ beta2opt_apply <- function(betas_post, constr_lb, constr_ub, x0s) {
 }
 ```
 
-```{r}
-# # only for development 
-# optima_post <- beta2opt_apply(betas_post = betas_post, 
-#                               constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s)
+```{r eval=FALSE, include=FALSE}
+# only for development
+optima_post <- beta2opt_apply(betas_post = betas_post,
+                              constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s)
 ```
 
 #### Parallel implementation
@@ -271,20 +282,18 @@ beta2opt_parApply <- function(betas_post, constr_lb, constr_ub, x0s) {
 }
 ```
 
-```{r}
-# # only for development 
-# optima_post <- beta2opt_parApply(betas_post = betas_post, 
-#                                  constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s)
+```{r eval=FALSE, include=FALSE}
+# only for development
+optima_post <- beta2opt_parApply(betas_post = betas_post,
+                                 constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s)
 ```
 
-#### Benchmark different implementations
-
-```{r}
-# only for development 
-# microbenchmark(m1 = beta2opt_parApply(), m2 = beta2opt_apply(), times = 1)
+```{r eval=FALSE, include=FALSE}
+# Benchmark different implementations
+microbenchmark(m1 = beta2opt_parApply(), m2 = beta2opt_apply(), times = 1)
 ```
 
-### 4. Main Function
+### 1.4 Main Function
 
 ```{r}
 BayesOptRegionQuad <- function(design, y, n_post, constr_lb, constr_ub, x0s, parallel = TRUE) {
@@ -321,47 +330,53 @@ BayesOptRegionQuad <- function(design, y, n_post, constr_lb, constr_ub, x0s, par
 
 ```{r}
 plot.bayescrquad <- function(res) {
-  ids <- list(id = grDevices::chull(res$optima_post)) %>%
-    map(~ c(.x, .x[1])) %>%
-    unlist()
-  plot(
-    NULL, type = "n", xlab = "x1", ylab = "x2",
-    xlim = c(constr_lb[1], constr_ub[1]), ylim = c(constr_lb[2], constr_ub[2])
-  )
-  lines(res$optima_post[ids, ], col = "black")
-  points(res$optimum_mean[1], res$optimum_mean[2], col = "red", cex = 1, pch = 16)
+  res$optima_post %>%
+    as_tibble() %>%
+    slice(chull(x1, x2)) %>%
+    ggplot(aes(x = x1, y = x2)) +
+    geom_polygon(col = "black", fill = "white", alpha = 0) +
+    geom_point(data = res$optimum_mean, aes(x = x1, y = x2), col = "red") +
+    xlab(expression(x[1])) + ylab(expression(x[2])) +
+    xlim(constr_lb[1], constr_ub[1]) + ylim(constr_lb[2], constr_ub[2]) +
+    coord_fixed() +
+    theme_bw() +
+    theme(
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      axis.title.x = element_text(size = 15),
+      axis.title.y = element_text(size = 15)
+    )
 }
 ```
 
 ```{r}
-# only for development
 res <- BayesOptRegionQuad(
   design = design, y = y, n_post = n_post, 
   constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s
 )
 ```
 
-```{r fig.align="center", fig.height=5, fig.width=5}
-# only for development
+<center>
+```{r fig.height=5, fig.width=5, out.extra='style="border-color:white"', echo=FALSE}
 plot(res)
 ```
+<\center>
 
-```{r}
-# # only for development
-# BayesOptRegionQuad_benchmark <- purrr::partial(
-#   BayesOptRegionQuad, design = design, y = y, n_post = n_post, constr_lb = constr_lb, constr_ub = constr_ub
-# )
-# microbenchmark(
-#   m1 = BayesOptRegionQuad_benchmark(parallel = TRUE),
-#   m2 = BayesOptRegionQuad_benchmark(parallel = FALSE),
-#   times = 1
-# )
+```{r eval=FALSE, include=FALSE}
+# only for development
+BayesOptRegionQuad_benchmark <- purrr::partial(
+  BayesOptRegionQuad, design = design, y = y, n_post = n_post,
+  constr_lb = constr_lb, constr_ub = constr_ub
+)
+microbenchmark(
+  m1 = BayesOptRegionQuad_benchmark(parallel = TRUE),
+  m2 = BayesOptRegionQuad_benchmark(parallel = FALSE),
+  times = 1
+)
 ```
 
-### 5. Coverage Analysis
+### 1.5 Coverage Analysis
 
-#### Test whether the CR contains a specific point
-```{r}
+```{r include=FALSE}
 inCR <- function(new_point, old_points) {
   old_points <- as.matrix(old_points)
   dim(new_point) <- c(1, 2)
@@ -382,8 +397,7 @@ inCR <- function(new_point, old_points) {
 inCR(old_points = res$optima_post, new_point = optimum_true)
 ```
 
-#### Coverage result from a single CR run
-```{r}
+```{r include=FALSE}
 cover_one_time <- function(i, design, f, sd_noise, n_post, constr_lb, constr_ub, x0s,
                            optimum_true, non_optima) {
   print(paste(i, "th CR with", "sd_noise =", sd_noise, "and n_rep =", nrow(design) / 22))
@@ -409,8 +423,7 @@ res_cover_one_time <- cover_one_time(
 )
 ```
 
-#### Coverage result from multiple CR runs
-```{r}
+```{r include=FALSE}
 cover_multiple_time <- function(sd_noise, n_rep, n_post, n_cov, 
                                 design_no_rep, beta_true, constr_lb, constr_ub, x0s,
                                 optimum_true, non_optima) {
@@ -468,7 +481,7 @@ cover_multiple_time <- function(sd_noise, n_rep, n_post, n_cov,
 }
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 rm(
   list = c(
     "beta_hat", "betas_post", "design", "f", "optimum_mean", "res", "y",
@@ -477,51 +490,52 @@ rm(
 )
 ```
 
-```{r}
-# coverage_analysis <- cover_multiple_time(
-#   sd_noise = 2, n_rep = 10, n_post = 200, n_cov = 10, 
-#   design_no_rep = design_no_rep, beta_true = beta_true,
-#   constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s,
-#   optimum_true = optimum_true, non_optima = non_optima
-# )
+```{r eval=FALSE, include=FALSE}
+# only for development
+coverage_analysis <- cover_multiple_time(
+  sd_noise = 2, n_rep = 10, n_post = 200, n_cov = 10,
+  design_no_rep = design_no_rep, beta_true = beta_true,
+  constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s,
+  optimum_true = optimum_true, non_optima = non_optima
+)
 ```
 
-```{r}
-# coverage_analysis
-```
-
-#### Parameters for the coverage analysis
-```{r}
+```{r include=FALSE}
+# Parameters for the coverage analysis
 param_coverage_analysis <- tibble(
   sd_noise =  c(rep(2, 3), rep(5, 3), rep(10, 3)),
   n_rep = rep(c(100, 200, 500), 3)
 )
+```
+
+```{r eval=FALSE, include=FALSE}
 param_coverage_analysis
 ```
 
-```{r}
-# coverage_analysis <- purrr::partial(
-#   cover_multiple_time,
-#   n_post = 1e3, n_cov = 1e3,
-#   design_no_rep = design_no_rep, beta_true = beta_true,
-#   constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s,
-#   optimum_true = optimum_true, non_optima = non_optima
-# )
-# run_time <- system.time(
-#   coverage_analyses <- param_coverage_analysis %>%
-#     pmap(~ coverage_analysis(sd_noise = ..1, n_rep = ..2)) %>%
-#     unlist() %>%
-#     matrix(nrow = 9, byrow = TRUE) %>%
-#     as_tibble() %>%
-#     set_names(
-#       c(
-#         "coverage", "area_mean", "area_sd",
-#         unlist(lapply(X = 1:10, FUN = function(i) paste("bias_", i, sep = "")))
-#       )
-#     ) %>%
-#     cbind(param_coverage_analysis) %>%
-#     select(14:15, 1:3, 4:13)
-# )
+```{r eval=FALSE, include=FALSE}
+# Coverage analyses with different parameters
+coverage_analysis <- purrr::partial(
+  cover_multiple_time,
+  n_post = 1e3, n_cov = 1e3,
+  design_no_rep = design_no_rep, beta_true = beta_true,
+  constr_lb = constr_lb, constr_ub = constr_ub, x0s = x0s,
+  optimum_true = optimum_true, non_optima = non_optima
+)
+run_time <- system.time(
+  coverage_analyses <- param_coverage_analysis %>%
+    pmap(~ coverage_analysis(sd_noise = ..1, n_rep = ..2)) %>%
+    unlist() %>%
+    matrix(nrow = 9, byrow = TRUE) %>%
+    as_tibble() %>%
+    set_names(
+      c(
+        "coverage", "area_mean", "area_sd",
+        unlist(lapply(X = 1:10, FUN = function(i) paste("bias_", i, sep = "")))
+      )
+    ) %>%
+    cbind(param_coverage_analysis) %>%
+    select(14:15, 1:3, 4:13)
+)
 # save(coverage_analyses, file = "coverage_analyses_1e3_1e3.RData")
 # save(run_time, file = "run_time_1e3_1e3.RData")
 ```
@@ -536,7 +550,671 @@ run_time / 3600
 ```
 
 ```{r}
-coverage_analyses
+coverage_analyses[, 1:5]
+```
+
+```{r}
+coverage_analyses[, -(1:5)]
+```
+
+## 2. Credible Regions on Gussian Process Models
+
+```{r, include = FALSE}
+rm(list = rm(list=setdiff(ls(), "plot.bayescrquad")))
+```
+
+### 2.1 One-Dimensional Case
+
+```{r}
+n <- 20
+sd_noise <- 0.05
+chain_length <- 10000 # ~ mcmc speed
+thin_interval <- 10 # ~ theta2opt speed
+grid_size <- 100
+n_path <- 200
+```
+
+#### 2.1.0 Simulate Experimental Data
+```{r}
+flex_1 <- function(x) dnorm(x, mean = 3.5, sd = 0.7) + dnorm(x, mean = 1, sd = 1)
+design <- seq(0, 5, length.out = n)
+response <- map_dbl(design, flex_1)
+y <- response + rnorm(n = length(response), mean = 0, sd = sd_noise)
+```
+
+```{r}
+x_grid <- seq(min(design), max(design), length.out = grid_size) %>% as.matrix(nrow = grid_size)
 ```
 
 
+<center>
+```{r echo=FALSE, fig.height=3, fig.width=6, out.extra='style="border-color:white"'}
+tibble(design = design, y = y) %>%
+  ggplot(aes(x = design, y = y)) + 
+  geom_point() + 
+  stat_function(fun = flex_1) + 
+  xlab("x") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) 
+```
+</center>
+
+#### 2.1.1 Draw Posterior Samples $\{\theta^{[t]}\}$
+
+```{r eval=FALSE, message=FALSE, include=FALSE}
+# fixed prior params
+# define 
+gp_model <- "model{
+  # likelihood
+  y ~ dmnorm(mu, inverse(Sigma))
+    for(i in 1:length(y)) {
+      mu[i] <- process_mean
+    }
+    for(i in 1:(length(y) - 1)) {
+      for(j in (i + 1):length(y)) {
+        Sigma[i, j] <- fun_var * exp(- d[i, j] / length_scale)
+        Sigma[j, i] <- Sigma[i, j]
+      }
+    }
+    for(i in 1:length(y)) {
+      Sigma[i, i] <- fun_var + noise_var
+    }
+  # prior
+  process_mean ~ dunif(-3, 3)
+  length_scale ~ dunif(0, 10)
+  fun_var ~ dunif(0, 2)
+  noise_var ~ dunif(0, 1)
+}"
+# compile
+gp_jags <- jags.model(
+  textConnection(gp_model),
+  data = list(y = y, d = fields::rdist(design)),
+  inits = list(.RNG.name = "base::Wichmann-Hill", .RNG.seed = 100),
+  quiet = TRUE
+)
+# simulate
+gp_sim <- coda.samples(
+  model = gp_jags,
+  variable.names = c("process_mean", "length_scale", "fun_var", "noise_var"),
+  n.iter = chain_length,
+  thin = thin_interval
+)
+# extract 
+gp_chain <- data.frame(gp_sim[[1]]) %>%
+  dplyr::select(process_mean, length_scale, fun_var, noise_var)
+```
+
+```{r eval=FALSE, include=FALSE}
+# varying prior params
+# define 
+gp_model <- "model{
+  # likelihood
+  y ~ dmnorm(mu, inverse(Sigma))
+    for(i in 1:length(y)) {
+      mu[i] <- process_mean
+    }
+    for(i in 1:(length(y) - 1)) {
+      for(j in (i + 1):length(y)) {
+        Sigma[i, j] <- fun_var * exp(- d[i, j] / length_scale)
+        Sigma[j, i] <- Sigma[i, j]
+      }
+    }
+    for(i in 1:length(y)) {
+      Sigma[i, i] <- fun_var + noise_var
+    }
+  # prior
+  process_mean ~ dunif(process_mean_lb, process_mean_ub)
+  length_scale ~ dunif(length_scale_lb, length_scale_ub)
+  fun_var ~ dunif(fun_var_lb, fun_var_ub)
+  noise_var ~ dunif(noise_var_lb, noise_var_ub)
+}"
+# compile
+gp_jags <- jags.model(
+  textConnection(gp_model),
+  data = list(
+    y = y, d = fields::rdist(design),
+    process_mean_lb = -3, process_mean_ub = 3,
+    length_scale_lb = 0, length_scale_ub = 10,
+    fun_var_lb = 0, fun_var_ub = 2,
+    noise_var_lb = 0, noise_var_ub = 1
+  ),
+  inits = list(.RNG.name = "base::Wichmann-Hill", .RNG.seed = 100),
+  quiet = TRUE
+)
+# simulate
+gp_sim <- coda.samples(
+  model = gp_jags,
+  variable.names = c("process_mean", "length_scale", "fun_var", "noise_var"),
+  n.iter = chain_length,
+  thin = thin_interval
+)
+# extract 
+gp_chain <- data.frame(gp_sim[[1]]) %>%
+  dplyr::select(process_mean, length_scale, fun_var, noise_var)
+```
+
+```{r}
+draw_post_gp <- function(design, y, process_mean_lb, process_mean_ub,
+                         length_scale_lb, length_scale_ub,
+                         fun_var_lb, fun_var_ub, noise_var_lb, noise_var_ub,
+                         chain_length, thin_interval) {
+  # define the bayesian model
+  gp_model <- "model{
+    # likelihood
+    y ~ dmnorm(mu, inverse(Sigma))
+      for(i in 1:length(y)) {
+        mu[i] <- process_mean
+      }
+      for(i in 1:(length(y) - 1)) {
+        for(j in (i + 1):length(y)) {
+          Sigma[i, j] <- fun_var * exp(- d[i, j] / length_scale)
+          Sigma[j, i] <- Sigma[i, j]
+        }
+      }
+      for(i in 1:length(y)) {
+        Sigma[i, i] <- fun_var + noise_var
+      }
+    # prior
+    process_mean ~ dunif(process_mean_lb, process_mean_ub)
+    length_scale ~ dunif(length_scale_lb, length_scale_ub)
+    fun_var ~ dunif(fun_var_lb, fun_var_ub)
+    noise_var ~ dunif(noise_var_lb, noise_var_ub)
+  }"
+  # compile the bayesian model
+  gp_jags <- jags.model(
+    textConnection(gp_model),
+    data = list(
+      y = y, d = fields::rdist(design),
+      process_mean_lb = process_mean_lb, process_mean_ub = process_mean_ub,
+      length_scale_lb = length_scale_lb, length_scale_ub = length_scale_ub,
+      fun_var_lb = fun_var_lb, fun_var_ub = fun_var_ub,
+      noise_var_lb = noise_var_lb, noise_var_ub = noise_var_ub
+    ),
+    inits = list(.RNG.name = "base::Wichmann-Hill", .RNG.seed = 100),
+    quiet = TRUE
+  )
+  # simulate posterior parameters
+  gp_sim <- coda.samples(
+    model = gp_jags,
+    variable.names = c("process_mean", "length_scale", "fun_var", "noise_var"),
+    n.iter = chain_length,
+    thin = thin_interval
+  )
+  # extract useful 
+  gp_chain <- data.frame(gp_sim[[1]]) %>%
+    dplyr::select(process_mean, length_scale, fun_var, noise_var)
+  # return
+  return(gp_chain)
+}
+```
+
+
+```{r eval=FALSE, include=FALSE}
+gp_chain <- draw_post_gp(
+  design = design, y = y, process_mean_lb = -3, process_mean_ub = 3,
+  length_scale_lb = 0, length_scale_ub = 10,
+  fun_var_lb = 0, fun_var_ub = 2, noise_var_lb = 0, noise_var_ub = 1,
+  chain_length = chain_length, thin_interval = thin_interval
+)
+```
+
+
+```{r eval=FALSE, include=FALSE}
+str(gp_chain)
+```
+
+```{r include=FALSE}
+plot_chain <- function(chain) {
+  traces <- purrr::imap(
+  chain,
+  ~ ggplot(chain, aes(x = 1:length(.x), y = .x)) + 
+  geom_line() + 
+  geom_smooth(method = "lm", col = "red") + 
+  xlab("Iterations") + 
+  ylab("") + 
+  ggtitle(paste("trace of posterior", .y)) + 
+  theme_bw() + 
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  ) 
+)
+densities <- purrr::imap(
+  chain,
+  ~ ggplot(chain, aes(x = .x)) + 
+    geom_density() + 
+    xlab("Iterations") + 
+    ylab("") + 
+    ggtitle(paste("density of posterior", .y)) + 
+    theme_bw() + 
+    theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  )
+)
+grid.arrange(
+  grobs = c(traces, densities),
+  layout_matrix = matrix(1:8, nrow = 4)
+)
+}
+```
+
+```{r include=FALSE}
+summary_chain <- function(chain)
+  purrr::map(chain, ~ quantile(x = .x, probs = c(0.025, 0.25, 0.5, 0.75, 0.975))) %>%
+  unlist() %>%
+  matrix(nrow = 4, byrow = TRUE) %>%
+  `rownames<-`(names(chain)) %>%
+  `colnames<-`(c("2.5%", "25%", "50%", "75%", "97.5%"))
+```
+
+```{r eval=FALSE, fig.height=10, fig.width=6, include=FALSE}
+plot_chain(gp_chain)
+```
+
+```{r eval=FALSE, include=FALSE}
+summary_chain(gp_chain)
+```
+
+
+```{r eval=FALSE, include=FALSE}
+# 2.1.2  Bayesian Kriging
+gp_cond <- function(x, design, y, process_mean, length_scale, fun_var) {
+  # see STAT 597 slides
+  C <- apply(
+    X = fields::rdist(design), MARGIN = c(1, 2),
+    FUN = function(d) fun_var * exp(-d / length_scale)
+  )
+  c <- apply(
+    X = fields::rdist(x1 = design, x2 = x), MARGIN = c(1, 2),
+    FUN = function(d) fun_var * exp(-d / length_scale)
+  )
+  cond_mean <- process_mean + crossprod(c, solve(C, y - rep(process_mean, length(y))))
+  cond_var <- fun_var - crossprod(c, solve(C, c)) %>% as.numeric()
+  list(cond_mean = as.numeric(cond_mean), cond_sd = sqrt(cond_var))
+}
+```
+
+```{r eval=FALSE, include=FALSE}
+gp_cond(
+  x = 1.5332628, design = design, y = y, 
+  process_mean = gp_chain$process_mean[1],
+  length_scale = gp_chain$length_scale[1], 
+  fun_var = gp_chain$fun_var[1]
+)
+```
+
+#### 2.1.2 Credible Region
+
+```{r eval=FALSE, include=FALSE}
+# Six-Sigma Bound Method
+x_grid <- seq(0, 5, length.out = 1e2)
+theta_mean2sim <- purrr::map(
+  .x = x_grid,
+  .f = ~ gp_cond(
+    x = .x, design = design, y = y,
+    process_mean = mean(gp_chain$process_mean),
+    length_scale = mean(gp_chain$length_scale),
+    fun_var = mean(gp_chain$fun_var)
+  )
+) %>%
+  map_df(
+    .f = ~ tibble(
+      mean = .x$cond_mean,
+      sigma = .x$cond_sd
+    )
+  ) %>%
+  mutate(x_grid = x_grid)
+tibble(design = design, y = y) %>%
+  ggplot(aes(x = design, y = y)) +
+  geom_point() +
+  stat_function(fun = function(i) flex_1(i)) +
+  geom_ribbon(
+    data = theta_mean2sim,
+    aes(
+      x = x_grid,
+      y = NULL,
+      ymin = mean - 3 * sigma,
+      ymax = mean + 3 * sigma
+    ),
+    fill = "red",
+    alpha = 0.1,
+  ) + 
+  geom_line(data = theta_mean2sim, aes(x = x_grid, y = mean + 3 * sigma), col = "red") +
+  geom_line(data = theta_mean2sim, aes(x = x_grid, y = mean), col = "red", alpha = 0.5) + 
+  xlab("x") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+```
+
+
+```{r eval=FALSE, include=FALSE}
+x_grid <- seq(0, 5, length.out = 1e2)
+theta2krig_plot <- function(process_mean, length_scale, fun_var) {
+  purrr::map(
+    .x = x_grid,
+    .f = ~ gp_cond(
+      x = .x, design = design, y = y,
+      process_mean = process_mean,
+      length_scale = length_scale,
+      fun_var = fun_var
+    )
+  ) %>%
+    map_df(
+      .f = ~ tibble(
+        mean = .x$cond_mean,
+        sigma = .x$cond_sd
+      )
+    ) %>%
+    mutate(x_grid = x_grid)
+}
+gp_bands <- purrr::pmap(
+  .l = sample_n(gp_chain[, 1:3], 10),
+  .f = function(process_mean, length_scale, fun_var)
+    theta2krig_plot(process_mean, length_scale, fun_var)
+) %>%
+  purrr::imap(
+    .f = ~ tibble(
+      mean = .x$mean,
+      sigma = .x$sigma,
+      x_grid = .x$x_grid,
+      theta_id = factor(.y)
+    )
+  ) %>%
+  reduce(rbind)
+ggplot(
+  data = gp_bands,
+      aes(
+      x = x_grid,
+      y = mean + 3 * sigma,
+      col = theta_id
+    ),
+  ) + 
+  geom_line() + 
+  stat_function(fun = function(i) flex_1(i), col = "black") +
+  xlab("x") + ylab("y") + 
+  theme_bw() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+```
+
+#### Map from $\theta^{[t]}$ to $\{x^{*[t](s)}\}$
+
+```{r}
+theta2opt<- function(n_path, x_grid, design, y, process_mean, length_scale, fun_var) {
+  kernel <- function(d) exp(-d / length_scale)
+  R11 <- apply(X = fields::rdist(design), MARGIN = c(1, 2), FUN = kernel)
+  R12 <- apply(X = fields::rdist(x1 = design, x2 = x_grid), MARGIN = c(1, 2), FUN = kernel)
+  R22 <- apply(X = fields::rdist(x_grid), MARGIN = c(1, 2), FUN = kernel)
+  mu <- rep(process_mean, nrow(x_grid))  +
+    crossprod(R12, solve(R11, y - rep(process_mean, length(y))))
+  Sigma <- fun_var * (R22 - crossprod(R12, solve(R11, R12)))
+  paths <- MASS::mvrnorm(n = n_path, mu = mu, Sigma = Sigma) %>%
+    t() %>%
+    as.data.frame() %>%
+    set_names(map_chr(1:n_path, ~ paste("path_", .x, sep = "")))
+  x_grid[apply(paths, 2, which.max)]
+}
+```
+
+```{r eval=FALSE, include=FALSE}
+optima <- theta2opt(
+  n_path = 6, x_grid = x_grid, design = design, y = y, 
+  process_mean = mean(gp_chain$process_mean),
+  length_scale = mean(gp_chain$length_scale),
+  fun_var = mean(gp_chain$fun_var)
+)
+```
+
+```{r eval=FALSE, include=FALSE}
+con_sims_plot <- tibble(
+  x = rep(x_grid, length(cond_sims)),
+  y = unlist(cond_sims),
+  realization = purrr:::map(
+    .x = 1:length(cond_sims),
+    .f = ~ rep(.x, nrow(x_grid))
+  ) %>%
+    unlist() %>%
+    factor()
+)
+cond_opts <- tibble(
+  opts = x_grid[apply(cond_sims, 2, which.max)],
+  realization = factor(1:num_realization)
+)
+ggplot(data = NULL, aes(x = design, y = y)) +
+  geom_point() +
+  geom_line(
+    data = con_sims_plot,
+    aes(
+      x = x,
+      y = y,
+      col = realization
+    ),
+    alpha = 0.5
+  ) +
+  geom_vline(
+    data = cond_opts,
+    aes(xintercept = opts, col = realization),
+    alpha = 0.5
+  ) + 
+  geom_point(data = NULL, aes(x = design, y = y)) + 
+  stat_function(fun = flex_1, col = "black") +
+  geom_vline(xintercept = 3.5, col = "black") + 
+  theme_bw() +
+  theme(
+    panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+    legend.position = "none"
+  )
+```
+
+#### Map from $\{\theta^{[t]}\}$ to $\{x^{*[t](s)}\}$
+
+#### Sequential Implementation
+
+```{r}
+thetas2opt <- function(thetas, n_path, x_grid, design, y) {
+  lapply(
+    X = 1:nrow(thetas),
+    FUN = function(i) theta2opt(
+        n_path = n_path, x_grid = x_grid, design = design, y = y,
+        process_mean = thetas$process_mean[i],
+        length_scale = thetas$length_scale[i],
+        fun_var = thetas$fun_var[i]
+      )
+  )
+}
+```
+
+```{r eval=FALSE, include=FALSE}
+res <- thetas2opt(thetas = gp_chain, n_path = 6, x_grid = x_grid, design = design, y = y)
+```
+
+#### Parallel Implementation
+
+```{r}
+thetas2opt_par <- function(thetas, n_path, x_grid, design, y,
+                                  process_mean, length_scale, fun_var) {
+  cl <- makeCluster(detectCores(logical = FALSE) - 1)
+  clusterEvalQ(cl, {
+    library(tidyverse)
+  })
+  clusterExport(cl, c("theta2opt", "x_grid", "design", "y", "n_path"))
+  res <- clusterApply(
+    cl, 
+    x = 1:nrow(thetas),
+    fun = function(i) theta2opt(
+        n_path = n_path, x_grid = x_grid, design = design, y = y,
+        process_mean = thetas$process_mean[i],
+        length_scale = thetas$length_scale[i],
+        fun_var = thetas$fun_var[i]
+      )
+  )
+  stopCluster(cl)
+  res
+}
+```
+
+```{r eval=FALSE, include=FALSE}
+res <- thetas2opt_par(
+  thetas = gp_chain, n_path = n_path, x_grid = x_grid, design = design, y = y
+)
+```
+
+```{r eval=FALSE, include=FALSE}
+microbenchmark(
+  res = thetas2opt(
+    thetas = gp_chain, n_path = 200, x_grid = x_grid, design = design, y = y
+  ),
+  res_par = thetas2opt_par(
+    thetas = gp_chain, n_path = 200, x_grid = x_grid, design = design, y = y
+  ),
+  times = 1
+)
+```
+
+#### 2.1.3 Main Function
+
+```{r}
+BayesOptRegionGP1 <- function(design, y, process_mean_lb, process_mean_ub,
+                              length_scale_lb, length_scale_ub,
+                              fun_var_lb, fun_var_ub, noise_var_lb, noise_var_ub,
+                              chain_length, thin_interval,
+                              path_grid, path_per_theta,
+                              parallel = TRUE) {
+  # draw posterior thetas
+  thetas <- draw_post_gp(
+    design = design, y = y,
+    process_mean_lb = process_mean_lb, process_mean_ub = process_mean_ub,
+    length_scale_lb = length_scale_lb, length_scale_ub = length_scale_ub,
+    fun_var_lb = fun_var_lb, fun_var_ub = fun_var_ub,
+    noise_var_lb = noise_var_lb, noise_var_ub = noise_var_ub,
+    chain_length = chain_length, thin_interval = thin_interval
+  )
+  # map thetas to sample paths to optima
+  if (parallel) {
+    optima <- thetas2opt_par(
+      thetas = thetas, n_path = path_per_theta, x_grid = path_grid, design = design, y = y
+    )
+  } else{
+    optima <- thetas2opt(
+      thetas = thetas, n_path = path_per_theta, x_grid = path_grid, design = design, y = y
+    )
+  }
+  # return
+  list(
+    thetas = structure(thetas, class = "mcmcdraw"),
+    optima = structure(optima, class = "baysoptima1D")
+  )
+}
+```
+
+```{r include=FALSE}
+plot.mcmcdraw <- function(thetas) {
+  attr(thetas, "class") <- "data.frame"
+  traces <- purrr::imap(
+    thetas,
+    ~ ggplot(thetas, aes(x = 1:length(.x), y = .x)) +
+      geom_line() +
+      geom_smooth(method = "lm", col = "red") +
+      xlab("Iterations") +
+      ylab("") +
+      ggtitle(paste("trace of posterior", .y)) +
+      theme_bw() +
+      theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5)
+      )
+  )
+  densities <- purrr::imap(
+    thetas,
+    ~ ggplot(thetas, aes(x = .x)) +
+      geom_density() +
+      xlab("Iterations") +
+      ylab("") +
+      ggtitle(paste("density of posterior", .y)) +
+      theme_bw() +
+      theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5)
+      )
+  )
+  grid.arrange(
+    grobs = c(traces, densities),
+    layout_matrix = matrix(1:8, nrow = 4)
+  )
+}
+```
+
+```{r include=FALSE}
+summary.mcmcdraw <- function(thetas) {
+  attr(thetas, "class") <- "data.frame"
+  purrr::map(thetas, ~ quantile(x = .x, probs = c(0.025, 0.25, 0.5, 0.75, 0.975))) %>%
+    unlist() %>%
+    matrix(nrow = 4, byrow = TRUE) %>%
+    `rownames<-`(names(thetas)) %>%
+    `colnames<-`(c("2.5%", "25%", "50%", "75%", "97.5%"))
+}
+```
+
+```{r include=FALSE}
+plot.baysoptima1D <- function(optima){
+  optima <- unlist(optima)
+  optima_quantile <- quantile(optima, c(0.025, 0.975))
+  optima <- optima[optima >= optima_quantile[1] & optima <= optima_quantile[2]]
+  ggplot(mapping = aes(x = optima )) + 
+    geom_histogram(binwidth = 0.05, fill = "white", col = "black") + 
+    xlab("posterior optima") + 
+    ylab("frequency") + 
+    ggtitle("Distribution of Mid-95% Posterior Optima") + 
+    theme_bw() +
+      theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5)
+      )
+}
+```
+
+```{r include=FALSE}
+summary.baysoptima1D <- function(optima) {
+  quantile_optima <- quantile(unlist(optima), c(0.025, 0.975))
+  paste0(
+    "95% credible interval of the optimal point: [",
+    quantile_optima[1] %>% round(2),
+    ", ",
+    quantile_optima[2] %>% round(2),
+    "]"
+  )
+}
+```
+
+```{r}
+c(thetas, optima) %<-% BayesOptRegionGP1(
+  design = design, y = y, process_mean_lb = -3, process_mean_ub = 3,
+  length_scale_lb = 0, length_scale_ub = 10,
+  fun_var_lb = 0, fun_var_ub = 2, noise_var_lb = 0, noise_var_ub = 1,
+  chain_length = chain_length, thin_interval = thin_interval,
+  path_grid = x_grid, path_per_theta = 200
+)
+```
+
+```{r, fig.height=10, fig.width = 7}
+plot(thetas)
+```
+
+```{r}
+summary(thetas)
+```
+
+```{r}
+plot(optima)
+```
+
+```{r}
+summary(optima)
+```
+
+### 2.2 Two-Dimensional Case
